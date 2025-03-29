@@ -61,9 +61,9 @@ public class MaterialRequestHistory extends BaseEntity{
 	
 	@Column(name = "REQUEST_LOCATION")
 	private String requestLocation;
-
-	@Column(name="ISSUED_DATE")
-	private Timestamp issuedDate;
+	
+	@Column(name = "UOM")
+	private String uom;
 	
 	public Timestamp getRequiredDate() {
 		return requiredDate;
@@ -137,12 +137,12 @@ public class MaterialRequestHistory extends BaseEntity{
 		this.requestId = requestId;
 	}
 
-	public Timestamp getIssuedDate() {
-		return issuedDate;
+	public String getUom() {
+		return uom;
 	}
 
-	public void setIssuedDate(Timestamp issuedDate) {
-		this.issuedDate = issuedDate;
+	public void setUom(String uom) {
+		this.uom = uom;
 	}
 
 	@Override
@@ -150,9 +150,12 @@ public class MaterialRequestHistory extends BaseEntity{
 		return "MaterialRequestHistory [requiredDate=" + requiredDate + ", serialNmuber=" + serialNmuber
 				+ ", requestId=" + requestId + ", projectId=" + projectId + ", materialTypeId=" + materialTypeId
 				+ ", materialId=" + materialId + ", requiredQuantity=" + requiredQuantity + ", totalOrderValue="
-				+ totalOrderValue + ", requestLocation=" + requestLocation + ", issuedDate=" + issuedDate + "]";
+				+ totalOrderValue + ", requestLocation=" + requestLocation + ", uom=" + uom + "]";
 	}
 
+
+
+	
 
 }
 

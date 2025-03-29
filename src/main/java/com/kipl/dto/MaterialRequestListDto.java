@@ -9,6 +9,7 @@ public class MaterialRequestListDto {
 	private String productRequiredLocation;
 	private Long projectId;
 	private String requiredDate;
+	private String uom;
 	public String getMaterialName() {
 		return materialName;
 	}
@@ -51,13 +52,20 @@ public class MaterialRequestListDto {
 	public void setRequiredDate(String requiredDate) {
 		this.requiredDate = requiredDate;
 	}
+	public String getUom() {
+		return uom;
+	}
+	public void setUom(String uom) {
+		this.uom = uom;
+	}
 	@Override
 	public String toString() {
 		return "MaterialRequestListDto [materialName=" + materialName + ", materialId=" + materialId
 				+ ", requiredQuantity=" + requiredQuantity + ", totalOrderValue=" + totalOrderValue
 				+ ", productRequiredLocation=" + productRequiredLocation + ", projectId=" + projectId
-				+ ", requiredDate=" + requiredDate + "]";
+				+ ", requiredDate=" + requiredDate + ", uom=" + uom + "]";
 	}
+	
 	
 	
 }

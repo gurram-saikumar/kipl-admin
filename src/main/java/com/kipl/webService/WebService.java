@@ -1609,7 +1609,6 @@ public class WebService {
 				requestM.setSerialNumber(jsonRequest.getSerialNumber());
 				requestM.setRequesterId(jsonRequest.getRequesterId()!=null?(userMasterManager.get(jsonRequest.getRequesterId())):null);
 				requestM.setRequiredDate(Timestamp.valueOf(jsonRequest.getRequestedDate()));
-				requestM.setRequiredLocation(jsonRequest.getProductRequiredLocation());
 				requestM.setComments(jsonRequest.getRemarks());
 				requestM.setRequestStatus("Pending");
 				materialRequestManager.mergeSaveOrUpdate(requestM);
@@ -1617,7 +1616,7 @@ public class WebService {
 				for(MaterialRequestListDto dto:jsonRequest.getMaterialRequestList())
 				{
 					MaterialRequestHistory history=new MaterialRequestHistory();
-					history.setCreatedOn(null);
+					history.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
 					history.setMaterialId(dto.getMaterialId()!=null?(materialMasterManager.get(dto.getMaterialId())):null);
 					history.setProjectId(jsonRequest.getProjectId()!=null?(companyProjectMasterManager.get(jsonRequest.getProjectId())):null);
 					history.setRequestId(requestM);
@@ -1627,6 +1626,7 @@ public class WebService {
 					history.setSerialNmuber(jsonRequest.getSerialNumber());
 					history.setStatus(true);
 					history.setTotalOrderValue(dto.getTotalOrderValue());
+					history.setUom(dto.getUom());
 					materialRequestHistoryManager.mergeSaveOrUpdate(history);
 
 				}
