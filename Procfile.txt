@@ -1,1 +1,1 @@
-web: java -jar target/klpwb.jar
+web: java -jar target/Kipl.jar
