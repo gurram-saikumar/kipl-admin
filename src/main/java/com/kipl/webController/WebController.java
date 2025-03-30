@@ -171,6 +171,19 @@ public class WebController {
 		}
 		return response;
 	}
+	
+	@GetMapping("getInventoryMaster")
+	public ResponseDTO getInventoryMaster(HttpServletRequest request)
+			throws JSONException {
+		LOG.info("getInventoryMaster");
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.getInventoryMaster(request,response);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
 
 	
 	@PostMapping("getEmployeeDashBoardDetailes")

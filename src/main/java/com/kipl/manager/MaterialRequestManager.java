@@ -26,9 +26,9 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 
 		List<MaterialRequestMaster> list = new ArrayList<MaterialRequestMaster>();
 		try {
-			list = find("from MaterialRequestMaster where status=true and requesterId='"+user+"' ");
+			list = find("from MaterialRequestMaster where status=true and requesterId.id="+user.getId()+" ");
 		} catch (Exception e) {
-			LOG.info("<=== Exception getMaterialRequestList ===>" + e.getStackTrace(), e);
+			LOG.info("<=== Exception getMaterialRequestList ===>" + e.getStackTrace(), e); 
 			list = null;
 		}
 		return list;

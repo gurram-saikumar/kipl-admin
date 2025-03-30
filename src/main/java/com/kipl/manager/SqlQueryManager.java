@@ -71,6 +71,17 @@ public class SqlQueryManager {
 			return 0L;
 		}
 	}
+	
+	public Long getInventoryAvailableQunatityBasedonMaterialId(Long id) {
+		try {
+			StringBuilder sql = new StringBuilder("select SUM(AVAILABLE_QUANTITY) from INVENTORY_MASTER where MATERIAL_ID = '" + id+ "'");
+			Object result = hibernateDao.getSession().createNativeQuery(sql.toString()).uniqueResult();
+	        return result != null ? ((Number) result).longValue() : 0L;	 			
+		} catch (Exception e) {
+			LOG.info(""+e.getStackTrace(),e);
+			return 0L;
+		}
+}
 
 	
 	}

@@ -45,6 +45,7 @@ import com.kipl.dto.ResponseDTO;
 import com.kipl.dto.SubMenuControllerDTO;
 import com.kipl.dto.UserInfoDto;
 import com.kipl.manager.CompanyProjectMasterManager;
+import com.kipl.manager.InventoryMasterManager;
 import com.kipl.manager.MaterialMasterManager;
 import com.kipl.manager.MaterialRequestHistoryManager;
 import com.kipl.manager.MaterialRequestManager;
@@ -64,6 +65,7 @@ import com.kipl.models.SubMenuMaster;
 import com.kipl.models.UserMaster;
 import com.kipl.models.UserMenuMappingEntity;
 import com.kipl.models.CompanyProjectMaster;
+import com.kipl.models.InventoryMaster;
 import com.kipl.utils.DateUtils;
 import com.kipl.utils.ExcelUtils;
 
@@ -110,6 +112,7 @@ public class WebService {
 	@Autowired private UserMasterManager userMasterManager;
 	@Autowired private MaterialRequestManager materialRequestManager;
 	@Autowired private MaterialRequestHistoryManager materialRequestHistoryManager;
+	@Autowired private InventoryMasterManager inventoryMasterManager;
 
 
 	private static final Logger LOG = LogManager.getLogger(WebService.class);
@@ -1611,6 +1614,7 @@ public class WebService {
 				requestM.setRequiredDate(Timestamp.valueOf(jsonRequest.getRequestedDate()));
 				requestM.setComments(jsonRequest.getRemarks());
 				requestM.setRequestStatus("Pending");
+				requestM.setStatus(true);
 				materialRequestManager.mergeSaveOrUpdate(requestM);
 				
 				for(MaterialRequestListDto dto:jsonRequest.getMaterialRequestList())
@@ -1664,6 +1668,8 @@ public class WebService {
 					DropDownDTO dto = new DropDownDTO();
 					dto.setId(material.getId());
 					dto.setName(material.getRmSize()+" ("+material.getSegment()+")");
+					Double availableQuantity=inventoryMasterManager.getInventoryAvailableQunatityBasedonMaterialId(material.getId().toString());
+					dto.setAvailableQuantity(availableQuantity.toString());
 					materialList.add(dto);
 				}
 			}
@@ -1697,12 +1703,15 @@ public class WebService {
 	}
 
 	public ResponseDTO getMaterialRequest(HttpServletRequest request, ResponseDTO response) {
-
 		try {
+			LOG.info("getMaterialRequest service");
+
 			String userId=request.getHeader("userId");
 			UserMaster user=userMasterManager.get(Long.parseLong(userId));
 			if(user!=null)
 			{
+				LOG.info("User Exist");
+
 				List<MaterialRequestDto> materiallist=new ArrayList<>();
 				List<MaterialRequestListDto> reqListDto=new ArrayList<>();
 				List<MaterialRequestMaster> requestList=materialRequestManager.getMaterialRequestList(user);
@@ -1736,12 +1745,13 @@ public class WebService {
 						materiallist.add(dto);
 					}
 					
-					response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
-					response.setMessage( appConfig.getProperty("SUCCESS"));
-				} else {
-					response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
-					response.setMessage( appConfig.getProperty("SUCCESS"));
-				}
+					
+				} 
+				JSONObject json = new JSONObject();
+				json.put("materialList", materiallist);
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+				response.setMessage( appConfig.getProperty("SUCCESS"));
+				response.setResponse(JSONValue.parse(json.toString()));
 				
 				
 			}else {
@@ -1755,6 +1765,23 @@ public class WebService {
 			response.setResponse(null);
 
 			}
+		return response;
+	}
+
+	public ResponseDTO getInventoryMaster(HttpServletRequest request, ResponseDTO response) {
+
+		try {
+			List<InventoryMaster> inventoryList=inventoryMasterManager.getAllInventoryList();
+			JSONObject json = new JSONObject();
+			json.put("inventoryList", inventoryList);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+			response.setMessage( appConfig.getProperty("SUCCESS"));
+			response.setResponse(JSONValue.parse(json.toString()));
+		}catch (Exception e) {
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
 		return response;
 	}
 }

@@ -24,7 +24,7 @@ public class MaterialRequestHistoryManager extends GenericManager<MaterialReques
 	public List<MaterialRequestHistory> getMaterialRequestHistoryBasedonId(MaterialRequestMaster materialRequest) {
 		List<MaterialRequestHistory> list = new ArrayList<MaterialRequestHistory>();
 		try {
-			list = find("from MaterialRequestHistory where status=true and requestId='"+materialRequest+"' ");
+			list = find("from MaterialRequestHistory where status=true and requestId.id="+materialRequest.getId()+" ");
 		} catch (Exception e) {
 			LOG.info("<=== Exception getMaterialRequestHistoryBasedonId ===>" + e.getStackTrace(), e);
 			list = null;

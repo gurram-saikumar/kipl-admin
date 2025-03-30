@@ -51,8 +51,11 @@ public class InventoryMaster extends BaseEntity{
 	@Column(name = "MATERIAL_DESCPRITION")
 	private String materialDescrption;
 		
-	@Column(name = "QUANTITY")
-	private String quantity;
+	@Column(name = "TOTAL_QUANTITY")
+	private Double totalQuantity;
+	
+	@Column(name = "AVAILABLE_QUANTITY")
+	private Double availableQuantity;
 		
 	@Column(name = "LENGTH")
 	private String length;
@@ -84,6 +87,9 @@ public class InventoryMaster extends BaseEntity{
 	@Column(name = "MATERIAL_TYPE")
 	private String materialType;
 
+	@Column(name = "MATERIAL_ID")
+	private String materialId;
+	
 	public String getSegment() {
 		return segment;
 	}
@@ -148,12 +154,20 @@ public class InventoryMaster extends BaseEntity{
 		this.materialDescrption = materialDescrption;
 	}
 
-	public String getQuantity() {
-		return quantity;
+	public Double getTotalQuantity() {
+		return totalQuantity;
 	}
 
-	public void setQuantity(String quantity) {
-		this.quantity = quantity;
+	public void setTotalQuantity(Double totalQuantity) {
+		this.totalQuantity = totalQuantity;
+	}
+
+	public Double getAvailableQuantity() {
+		return availableQuantity;
+	}
+
+	public void setAvailableQuantity(Double availableQuantity) {
+		this.availableQuantity = availableQuantity;
 	}
 
 	public String getLength() {
@@ -236,13 +250,22 @@ public class InventoryMaster extends BaseEntity{
 		this.materialType = materialType;
 	}
 
+	public String getMaterialId() {
+		return materialId;
+	}
+
+	public void setMaterialId(String materialId) {
+		this.materialId = materialId;
+	}
+
 	@Override
 	public String toString() {
-		return "MaterialMaster [segment=" + segment + ", rmSize=" + rmSize + ", colour=" + colour + ", grade=" + grade
+		return "InventoryMaster [segment=" + segment + ", rmSize=" + rmSize + ", colour=" + colour + ", grade=" + grade
 				+ ", mpa=" + mpa + ", section=" + section + ", customer=" + customer + ", materialDescrption="
-				+ materialDescrption + ", quantity=" + quantity + ", length=" + length + ", width=" + width + ", thick="
-				+ thick + ", uom=" + uom + ", weight=" + weight + ", location=" + location + ", remarks=" + remarks
-				+ ", price=" + price + ", materialCode=" + materialCode + ", materialType=" + materialType + "]";
+				+ materialDescrption + ", totalQuantity=" + totalQuantity + ", availableQuantity=" + availableQuantity
+				+ ", length=" + length + ", width=" + width + ", thick=" + thick + ", uom=" + uom + ", weight=" + weight
+				+ ", location=" + location + ", remarks=" + remarks + ", price=" + price + ", materialCode="
+				+ materialCode + ", materialType=" + materialType + ", materialId=" + materialId + "]";
 	}
 
 	
