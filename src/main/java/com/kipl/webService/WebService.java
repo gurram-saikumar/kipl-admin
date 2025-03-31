@@ -66,6 +66,7 @@ import com.kipl.models.UserMaster;
 import com.kipl.models.UserMenuMappingEntity;
 import com.kipl.models.CompanyProjectMaster;
 import com.kipl.models.InventoryMaster;
+import com.kipl.models.IssueMaterialRequestMaster;
 import com.kipl.utils.DateUtils;
 import com.kipl.utils.ExcelUtils;
 
@@ -1783,5 +1784,78 @@ public class WebService {
 			response.setResponse(null);
 		}
 		return response;
+	}
+
+	public ResponseDTO issueMaterialRequest(String jsonData) {
+		ResponseDTO response=new ResponseDTO();
+		try {
+			MaterialRequestDto jsonRequest = new ObjectMapper().readValue(jsonData, MaterialRequestDto.class);
+			if(jsonRequest!=null)
+			{
+				IssueMaterialRequestMaster issue=new IssueMaterialRequestMaster();
+				issue.setCreatedOn(null);
+				issue.setStatus(true);
+				issue.setIssuedDate(null);
+				issue.setIssuerId(null);
+				issue.setIssuedQuantity(null);
+				issue.setRequestId(null);
+				issue.setRequestHistoryId(null);
+				
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+				response.setMessage( appConfig.getProperty("SUCCESS"));
+			} else {
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+				response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+				response.setResponse(null);
+			}
+			
+			
+		}catch (Exception e) {
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
+		return response;
+	}
+
+	public String getProjectMasters() {
+
+		JSONObject resp = new JSONObject();
+
+		try {
+			List<CompanyProjectMaster> projects = companyProjectMasterManager.getProjectsList();
+
+			JSONObject json = new JSONObject();
+			json.put("projectList", projects);
+
+			
+			resp.put("statusCode", appConfig.getProperty("SUCCESS_CODE"));
+			resp.put("message", appConfig.getProperty("SUCCESS"));
+			resp.put("response", JSONValue.parse(json.toString()));
+		}catch (Exception e) {
+			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
+			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
+			LOG.info(e);
+		}
+		return resp.toString();
+	}
+	
+	public String getMaterialMasters()
+	{
+		JSONObject resp = new JSONObject();
+
+		try {
+			List<MaterialMaster> materials = materialMasterManager.getMaterialList();
+			JSONObject json = new JSONObject();
+			json.put("materialList", materials);
+			resp.put("statusCode", appConfig.getProperty("SUCCESS_CODE"));
+			resp.put("message", appConfig.getProperty("SUCCESS"));
+			resp.put("response", JSONValue.parse(json.toString()));
+		}catch (Exception e) {
+			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
+			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
+			LOG.info(e.getStackTrace(),e);
+		}
+		return resp.toString();
 	}
 }

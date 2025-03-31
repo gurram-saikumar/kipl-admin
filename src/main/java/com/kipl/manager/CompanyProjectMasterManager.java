@@ -29,4 +29,15 @@ public class CompanyProjectMasterManager extends GenericManager<CompanyProjectMa
 		}
 		return list;
 	}
+
+	public List<CompanyProjectMaster> getProjectsList() {
+		List<CompanyProjectMaster> list = new ArrayList<CompanyProjectMaster>();
+		try {
+			list = find("from CompanyProjectMaster");
+		} catch (Exception e) {
+			LOG.info("<=== Exception getProjectsList ===>" + e.getStackTrace(), e);
+			list = null;
+		}
+		return list;
+	}
 }

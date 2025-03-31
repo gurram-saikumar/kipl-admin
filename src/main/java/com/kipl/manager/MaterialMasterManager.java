@@ -30,4 +30,16 @@ public class MaterialMasterManager extends GenericManager<MaterialMaster, Long>{
 		}
 		return list;
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<MaterialMaster> getMaterialList() {
+		List<MaterialMaster> list = new ArrayList<MaterialMaster>();
+		try {
+			list = find("from MaterialMaster");
+		} catch (Exception e) {
+			LOG.info("<=== Exception getMaterialList ===>" + e.getStackTrace(), e);
+			list = null;
+		}
+		return list;
+	}
 }
