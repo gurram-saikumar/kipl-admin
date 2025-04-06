@@ -1,4 +1,4 @@
-package com.kiplcommon.components;
+package com.kipl.common.components;
 
 import java.net.URLEncoder;
 import org.apache.logging.log4j.LogManager;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+
 import com.kipl.utils.URLConnect;
 
 @Service

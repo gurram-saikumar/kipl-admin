@@ -2,8 +2,8 @@ package com.kipl.models;
 
 import java.sql.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kipl.common.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

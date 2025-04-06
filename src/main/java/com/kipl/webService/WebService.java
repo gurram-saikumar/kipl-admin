@@ -33,9 +33,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kipl.common.FileUtils;
 import com.kipl.common.HibernateDao;
 import com.kipl.dto.DropDownDTO;
@@ -46,6 +43,7 @@ import com.kipl.dto.SubMenuControllerDTO;
 import com.kipl.dto.UserInfoDto;
 import com.kipl.manager.CompanyProjectMasterManager;
 import com.kipl.manager.InventoryMasterManager;
+import com.kipl.manager.IssueMaterialRequestMasterManager;
 import com.kipl.manager.MaterialMasterManager;
 import com.kipl.manager.MaterialRequestHistoryManager;
 import com.kipl.manager.MaterialRequestManager;
@@ -56,21 +54,24 @@ import com.kipl.manager.SqlQueryManager;
 import com.kipl.manager.SubMenuMasterManager;
 import com.kipl.manager.UserMasterManager;
 import com.kipl.manager.UserMenuMappingManager;
+import com.kipl.models.CompanyProjectMaster;
+import com.kipl.models.InventoryMaster;
+import com.kipl.models.IssueMaterialRequestMaster;
 import com.kipl.models.MaterialMaster;
 import com.kipl.models.MaterialRequestHistory;
 import com.kipl.models.MaterialRequestMaster;
 import com.kipl.models.MenuMaster;
+import com.kipl.models.ReMappingHistory;
 import com.kipl.models.RoleMaster;
 import com.kipl.models.SubMenuMaster;
 import com.kipl.models.UserMaster;
 import com.kipl.models.UserMenuMappingEntity;
-import com.kipl.models.CompanyProjectMaster;
-import com.kipl.models.InventoryMaster;
-import com.kipl.models.IssueMaterialRequestMaster;
 import com.kipl.utils.DateUtils;
 import com.kipl.utils.ExcelUtils;
-
-import com.kipl.models.ReMappingHistory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -114,6 +115,7 @@ public class WebService {
 	@Autowired private MaterialRequestManager materialRequestManager;
 	@Autowired private MaterialRequestHistoryManager materialRequestHistoryManager;
 	@Autowired private InventoryMasterManager inventoryMasterManager;
+	@Autowired private IssueMaterialRequestMasterManager issueMaterialRequestMasterManager;
 
 
 	private static final Logger LOG = LogManager.getLogger(WebService.class);
@@ -491,28 +493,24 @@ public class WebService {
 				return response;
 			}
 
-			byte[] decodedPassWord = Base64.getDecoder().decode(passWord);
-			String decodedPasswordString = new String(decodedPassWord, StandardCharsets.UTF_8);
+//			byte[] decodedPassWord = Base64.getDecoder().decode(passWord);
+//			String decodedPasswordString = new String(decodedPassWord, StandardCharsets.UTF_8);
 			UserMaster userPresence = userInfoManager.getPasswordByUserId(userID);
 
 			if (userPresence != null) {
 
-				if (userPresence != null) {
-					encodedPassword = userPresence.getPassword();
-					byte[] decodedBytes = Base64.getDecoder().decode(encodedPassword);
-					decodedPassword = new String(decodedBytes, StandardCharsets.UTF_8);
+				encodedPassword = userPresence.getPassword();
+				byte[] decodedBytes = Base64.getDecoder().decode(encodedPassword);
+				decodedPassword = new String(decodedBytes, StandardCharsets.UTF_8);
 
-					LOG.info("Original password from portal : " + passWord);
-					LOG.info("Password from portal after decoding : " + decodedPasswordString);
-					LOG.info("Password from databases after decoding : " + decodedPassword);
-					LOG.info("Original password from databases : " + encodedPassword);
-				} else {
-					decodedPasswordString = "0";
-				}
+				LOG.info("Original password from portal : " + passWord);
+				//LOG.info("Password from portal after decoding : " + decodedPasswordString);
+				LOG.info("Password from databases after decoding : " + decodedPassword);
+				LOG.info("Original password from databases : " + encodedPassword);
 
-				if (userID != null && !userID.trim().isEmpty() && !decodedPasswordString.equals("0")) {
-					if (decodedPassword.equals(decodedPasswordString)) {
-						UserMaster jsonRequest = userInfoManager.getUserByUserIdAndPassword(userID, passWord);
+				if (userID != null && !userID.trim().isEmpty()) {
+					if (decodedPassword.equals(passWord)) {
+						UserMaster jsonRequest = userInfoManager.getUserByUserIdAndPassword(userID, encodedPassword);
 						List<SubMenuControllerDTO> userMenuControls = new ArrayList<>();
 
 						UserInfoDto userInfo = new UserInfoDto();
@@ -1607,6 +1605,17 @@ public class WebService {
 			
 			if(jsonRequest!=null)
 			{
+				MaterialRequestMaster MaterialRequest = generateRequestId();
+	                LOG.info("AFTER MAX VALUE");
+	                Long requestId = 0L;
+	                if (MaterialRequest != null)
+	                {
+	                	 LOG.info("AFTER MAX VALUE"+MaterialRequest.getId());
+	                	 requestId = MaterialRequest.getRequestId() + 1;
+	                }
+	                else requestId = 1000l;
+				
+				//Long requestId=materialRequestManager.getLatestRequestId();
 				MaterialRequestMaster requestM=new MaterialRequestMaster();
 				requestM.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
 				requestM.setProjectId(jsonRequest.getProjectId()!=null?(companyProjectMasterManager.get(jsonRequest.getProjectId())):null);
@@ -1616,6 +1625,7 @@ public class WebService {
 				requestM.setComments(jsonRequest.getRemarks());
 				requestM.setRequestStatus("Pending");
 				requestM.setStatus(true);
+				requestM.setRequestId(requestId);
 				materialRequestManager.mergeSaveOrUpdate(requestM);
 				
 				for(MaterialRequestListDto dto:jsonRequest.getMaterialRequestList())
@@ -1632,6 +1642,7 @@ public class WebService {
 					history.setStatus(true);
 					history.setTotalOrderValue(dto.getTotalOrderValue());
 					history.setUom(dto.getUom());
+					history.setRequestStatus("Pending");
 					materialRequestHistoryManager.mergeSaveOrUpdate(history);
 
 				}
@@ -1652,6 +1663,21 @@ public class WebService {
 
 		return response;
 	}
+	
+	  private MaterialRequestMaster generateRequestId()
+	    {
+	       // return ticketManager.getTicketSeqNo();
+	    	try {
+				long maxId = materialRequestManager.getMaxRequestId();
+				if(maxId>0)
+					return	materialRequestManager.get(maxId);
+				else
+					return null;
+			} catch (Exception e) {
+				LOG.info("==Exception=="+e.getStackTrace(),e);
+				return null;
+			}
+	    }
 
 	public String getMasters() {
 
@@ -1703,6 +1729,25 @@ public class WebService {
 
 	}
 
+	
+
+	public ResponseDTO getInventoryMaster(HttpServletRequest request, ResponseDTO response) {
+
+		try {
+			List<InventoryMaster> inventoryList=inventoryMasterManager.getAllInventoryList();
+			JSONObject json = new JSONObject();
+			json.put("inventoryList", inventoryList);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+			response.setMessage( appConfig.getProperty("SUCCESS"));
+			response.setResponse(JSONValue.parse(json.toString()));
+		}catch (Exception e) {
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
+		return response;
+	}
+	
 	public ResponseDTO getMaterialRequest(HttpServletRequest request, ResponseDTO response) {
 		try {
 			LOG.info("getMaterialRequest service");
@@ -1714,36 +1759,51 @@ public class WebService {
 				LOG.info("User Exist");
 
 				List<MaterialRequestDto> materiallist=new ArrayList<>();
-				List<MaterialRequestListDto> reqListDto=new ArrayList<>();
 				List<MaterialRequestMaster> requestList=materialRequestManager.getMaterialRequestList(user);
 				if(requestList!=null && requestList.size()>0)
 				{
 					for(MaterialRequestMaster materialRequest:requestList)
 					{
 						MaterialRequestDto dto=new MaterialRequestDto();
-						//dto.setMeterialId(materialRequest.get);
+						dto.setMaterialRequestId(materialRequest.getId());
+						dto.setRequestId(materialRequest.getRequestId());
 						dto.setProjectId(materialRequest.getProjectId().getId());
 						dto.setSerialNumber(materialRequest.getSerialNumber());
 						dto.setRequesterId(materialRequest.getRequesterId().getId());
+						dto.setRequesterName(materialRequest.getRequesterId().getName());
 						List<MaterialRequestHistory> history=materialRequestHistoryManager.getMaterialRequestHistoryBasedonId(materialRequest);
 						if(history!=null)
-						{
+						{				
+							List<MaterialRequestListDto> reqListDto=new ArrayList<>();
+
 							for(MaterialRequestHistory reqHist: history)
 							{
+								Double issuedQuantity=issueMaterialRequestMasterManager.getIssuedQuantityBasedonMaterialRequestHistoryId(reqHist.getId());
 								MaterialRequestListDto reqdto=new MaterialRequestListDto();
+								reqdto.setMaterialRequestHistoryId(reqHist.getId());
 								reqdto.setMaterialId(reqHist.getMaterialId().getId());
-								reqdto.setMaterialName(reqHist.getMaterialId().getRmSize());
+								reqdto.setMaterialName(reqHist.getMaterialId().getRmSize()+" ("+reqHist.getMaterialId().getSegment()+")");
 								reqdto.setProductRequiredLocation(reqHist.getRequestLocation());
 								reqdto.setProjectId(reqHist.getProjectId().getId());
 								reqdto.setRequiredDate(reqHist.getRequiredDate().toString());
 								reqdto.setRequiredQuantity(reqHist.getRequiredQuantity());
 								reqdto.setTotalOrderValue(reqHist.getTotalOrderValue());
+								reqdto.setProjectName(reqHist.getProjectId().getProjectName());
+								if(issuedQuantity>0)
+								{
+									reqdto.setRequestStatus("Pending");
+								} else if(reqHist.getRequiredQuantity().compareTo(issuedQuantity)==0) {
+									reqdto.setRequestStatus("Completed");
+								} else {
+									reqdto.setRequestStatus("Patial Completed");
+								}
+								reqdto.setIssuedQuantity(issuedQuantity);
 								reqListDto.add(reqdto);
 							}
-							
+							dto.setMaterialRequestList(reqListDto);
 						}
-						dto.setMaterialRequestList(reqListDto);
 						materiallist.add(dto);
+						
 					}
 					
 					
@@ -1769,40 +1829,52 @@ public class WebService {
 		return response;
 	}
 
-	public ResponseDTO getInventoryMaster(HttpServletRequest request, ResponseDTO response) {
-
-		try {
-			List<InventoryMaster> inventoryList=inventoryMasterManager.getAllInventoryList();
-			JSONObject json = new JSONObject();
-			json.put("inventoryList", inventoryList);
-			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
-			response.setMessage( appConfig.getProperty("SUCCESS"));
-			response.setResponse(JSONValue.parse(json.toString()));
-		}catch (Exception e) {
-			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-			response.setResponse(null);
-		}
-		return response;
-	}
-
 	public ResponseDTO issueMaterialRequest(String jsonData) {
 		ResponseDTO response=new ResponseDTO();
 		try {
 			MaterialRequestDto jsonRequest = new ObjectMapper().readValue(jsonData, MaterialRequestDto.class);
 			if(jsonRequest!=null)
 			{
-				IssueMaterialRequestMaster issue=new IssueMaterialRequestMaster();
-				issue.setCreatedOn(null);
-				issue.setStatus(true);
-				issue.setIssuedDate(null);
-				issue.setIssuerId(null);
-				issue.setIssuedQuantity(null);
-				issue.setRequestId(null);
-				issue.setRequestHistoryId(null);
+				MaterialRequestMaster materialRequest=materialRequestManager.get(jsonRequest.getMaterialRequestId());
+				if(materialRequest!=null)
+				{
+					MaterialRequestHistory materialRequestHistory=materialRequestHistoryManager.get(jsonRequest.getMaterialRequestHistoryId());
+					if (materialRequestHistory != null) {
+						IssueMaterialRequestMaster issue = new IssueMaterialRequestMaster();
+						issue.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
+						issue.setStatus(true);
+						issue.setIssuedDate(Timestamp.valueOf(jsonRequest.getIssuedDate()));
+						issue.setIssuerId(userMasterManager.get(jsonRequest.getIssuerId()));
+						issue.setIssuedQuantity(jsonRequest.getIssuedQuantity());
+						issue.setMaterialRequestMasterId(materialRequest);
+						issue.setMaterialRequestHistoryId(materialRequestHistory);
+						issueMaterialRequestMasterManager.mergeSaveOrUpdate(issue);
+						InventoryMaster inv=inventoryMasterManager.getInventoryListBasedonMaterialId(materialRequestHistory.getMaterialId().getId().toString());
+						if(inv!=null)
+						{
+							inv.setAvailableQuantity(inv.getAvailableQuantity()-issue.getIssuedQuantity());
+							inventoryMasterManager.mergeSaveOrUpdate(inv);
+							Double issuedQuantity=issueMaterialRequestMasterManager.getIssuedQuantityBasedonMaterialRequestHistoryId(issue.getMaterialRequestHistoryId().getId());
+
+							if(jsonRequest.getIssuedQuantity()+issuedQuantity.compareTo(materialRequestHistory.getRequiredQuantity())==0)
+							{
+								issue.setIssueStatus("Completed");
+							} else {
+								issue.setIssueStatus("Patial Completed");
+							}
+							issueMaterialRequestMasterManager.mergeSaveOrUpdate(issue);
+						}
+						response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+						response.setMessage(appConfig.getProperty("SUCCESS"));
+					} else {
+						response.setStatusCode(201);
+						response.setMessage("Invalid Material Request History Id");
+					}
+				} else {
+					response.setStatusCode(201);
+					response.setMessage("Invalid Material Request Id");
+				}
 				
-				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
-				response.setMessage( appConfig.getProperty("SUCCESS"));
 			} else {
 				response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
 				response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
@@ -1811,11 +1883,68 @@ public class WebService {
 			
 			
 		}catch (Exception e) {
+			LOG.info("issueMaterialRequest Exception"+e.getStackTrace(),e);
 			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
 			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
 			response.setResponse(null);
 		}
 		return response;
+	}
+	
+	public String getIssueMaterialRequest(HttpServletRequest request) {
+		JSONObject response=new JSONObject();
+		try {
+			String userId=request.getHeader("userid");
+			UserMaster user=userMasterManager.get(Long.parseLong(userId));
+			List<MaterialRequestDto> issuedList= new ArrayList<>();
+			List<MaterialRequestListDto> reqListDto=new ArrayList<>();
+
+			if(user!=null)
+			{
+				
+				List<IssueMaterialRequestMaster> issueList=issueMaterialRequestMasterManager.getIssueMaterialListBasedonIssuerId(user.getId());
+				for(IssueMaterialRequestMaster list:issueList)
+				{
+					MaterialRequestDto dto=new MaterialRequestDto();
+					dto.setMaterialRequestId(list.getMaterialRequestMasterId().getId());
+					dto.setRequestId(list.getMaterialRequestMasterId().getRequestId());
+					dto.setProjectId(list.getMaterialRequestMasterId().getProjectId().getId());
+					dto.setSerialNumber(list.getMaterialRequestMasterId().getSerialNumber());
+					dto.setRequesterId(list.getMaterialRequestMasterId().getRequesterId().getId());
+					dto.setRequesterName(list.getMaterialRequestMasterId().getRequesterId().getName());
+					
+					
+					MaterialRequestListDto reqdto=new MaterialRequestListDto();
+					reqdto.setMaterialRequestHistoryId(list.getMaterialRequestHistoryId().getId());
+					reqdto.setMaterialId(list.getMaterialRequestHistoryId().getMaterialId().getId());
+					reqdto.setMaterialName(list.getMaterialRequestHistoryId().getMaterialId().getRmSize());
+					reqdto.setProductRequiredLocation(list.getMaterialRequestHistoryId().getRequestLocation());
+					reqdto.setProjectId(list.getMaterialRequestHistoryId().getProjectId().getId());
+					reqdto.setRequiredDate(list.getMaterialRequestHistoryId().getRequiredDate().toString());
+					reqdto.setRequiredQuantity(list.getMaterialRequestHistoryId().getRequiredQuantity());
+					reqdto.setTotalOrderValue(list.getMaterialRequestHistoryId().getTotalOrderValue());
+					reqdto.setProjectName(list.getMaterialRequestHistoryId().getProjectId().getProjectName());
+					reqdto.setIssuerName(list.getIssuerId().getName());
+					reqdto.setRequestStatus(list.getIssueStatus());
+					reqdto.setIssuedQuantity(list.getIssuedQuantity());
+					reqListDto.add(reqdto);
+					dto.setMaterialRequestList(reqListDto);
+					issuedList.add(dto);
+
+				}
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("issuedList", issuedList);
+				response.put("statusCode",Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+				response.put("message", appConfig.getProperty("SUCCESS"));
+				response.put("response",JSONValue.parse(jsonObject.toString()));
+			} else {
+				
+			}
+		}catch (Exception e) {
+			response.put("statusCode",Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.put("message",appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return response.toString();
 	}
 
 	public String getProjectMasters() {

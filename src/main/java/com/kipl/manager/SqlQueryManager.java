@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Repository;
 
 import com.kipl.common.HibernateDao;
+
 import jakarta.transaction.Transactional;
 
 @SuppressWarnings("deprecation")

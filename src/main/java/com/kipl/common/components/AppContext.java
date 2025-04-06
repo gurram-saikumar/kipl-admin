@@ -1,4 +1,4 @@
-package com.kiplcommon.components;
+package com.kipl.common.components;
 
 import org.springframework.context.ApplicationContext;
 

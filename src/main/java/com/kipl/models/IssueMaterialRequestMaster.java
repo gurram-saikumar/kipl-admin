@@ -2,8 +2,8 @@ package com.kipl.models;
 
 import java.sql.Timestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kipl.common.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,12 +31,12 @@ public class IssueMaterialRequestMaster extends BaseEntity{
 	}
 	
 	@ManyToOne
-	@JoinColumn(name = "REQUEST_ID")
-	private MaterialRequestMaster requestId;
+	@JoinColumn(name = "MATERIAL_REQUEST_MASTER_ID")
+	private MaterialRequestMaster materialRequestMasterId;
 	
 	@ManyToOne
-	@JoinColumn(name = "REQUEST_HISTORY_ID")
-	private MaterialRequestHistory requestHistoryId;
+	@JoinColumn(name = "MATERIAL_REQUEST_HISTORY_ID")
+	private MaterialRequestHistory materialRequestHistoryId;
 	
 	@ManyToOne
 	@JoinColumn(name = "ISSEUER_ID")
@@ -47,21 +47,26 @@ public class IssueMaterialRequestMaster extends BaseEntity{
 	
 	@Column(name ="ISSUED_DATE")
 	private Timestamp issuedDate;
+	
+	@Column(name="ISSUE_STATUS")
+	private String issueStatus;
 
-	public MaterialRequestMaster getRequestId() {
-		return requestId;
+	
+
+	public MaterialRequestMaster getMaterialRequestMasterId() {
+		return materialRequestMasterId;
 	}
 
-	public void setRequestId(MaterialRequestMaster requestId) {
-		this.requestId = requestId;
+	public void setMaterialRequestMasterId(MaterialRequestMaster materialRequestMasterId) {
+		this.materialRequestMasterId = materialRequestMasterId;
 	}
 
-	public MaterialRequestHistory getRequestHistoryId() {
-		return requestHistoryId;
+	public MaterialRequestHistory getMaterialRequestHistoryId() {
+		return materialRequestHistoryId;
 	}
 
-	public void setRequestHistoryId(MaterialRequestHistory requestHistoryId) {
-		this.requestHistoryId = requestHistoryId;
+	public void setMaterialRequestHistoryId(MaterialRequestHistory materialRequestHistoryId) {
+		this.materialRequestHistoryId = materialRequestHistoryId;
 	}
 
 	public UserMaster getIssuerId() {
@@ -88,11 +93,22 @@ public class IssueMaterialRequestMaster extends BaseEntity{
 		this.issuedDate = issuedDate;
 	}
 
+	public String getIssueStatus() {
+		return issueStatus;
+	}
+
+	public void setIssueStatus(String issueStatus) {
+		this.issueStatus = issueStatus;
+	}
+
 	@Override
 	public String toString() {
-		return "IssueMaterialRequestMaster [requestId=" + requestId + ", requestHistoryId=" + requestHistoryId
-				+ ", issuerId=" + issuerId + ", issuedQuantity=" + issuedQuantity + ", issuedDate=" + issuedDate + "]";
+		return "IssueMaterialRequestMaster [materialRequestMasterId=" + materialRequestMasterId
+				+ ", materialRequestHistoryId=" + materialRequestHistoryId + ", issuerId=" + issuerId
+				+ ", issuedQuantity=" + issuedQuantity + ", issuedDate=" + issuedDate + ", issueStatus=" + issueStatus
+				+ "]";
 	}
+
 	
 	
 }

@@ -38,5 +38,12 @@ public class InventoryMasterManager extends GenericManager<InventoryMaster, Long
 	        List<Double> ids = find(hql);
 	        return ids != null && !ids.isEmpty() ? ids.get(0) : null;
 	}
+	
+	public InventoryMaster getInventoryListBasedonMaterialId(String materialId) {
+		  String hql = " from InventoryMaster where materialId='"+materialId+"' ";
+	        LOG.info("getSurveyCountForProductPerformance==> " + hql);
+	        List<InventoryMaster> ids = find(hql);
+	        return ids != null && !ids.isEmpty() ? ids.get(0) : null;
+	}
 
 }

@@ -1,4 +1,4 @@
-package com.kiplcommon.components;
+package com.kipl.common.components;
 
 import java.net.URLEncoder;
 

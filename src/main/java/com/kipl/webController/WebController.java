@@ -146,6 +146,66 @@ public class WebController {
 		return resp;
 	}
 
+
+	
+	@GetMapping("getInventoryMaster")
+	public ResponseDTO getInventoryMaster(HttpServletRequest request)
+			throws JSONException {
+		LOG.info("getInventoryMaster");
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.getInventoryMaster(request,response);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
+
+
+	
+	@GetMapping("getMasters")
+	public String getMasters(HttpServletRequest request) {
+		JSONObject resp = new JSONObject();
+		try {
+			LOG.info("<==getMasters====>" );
+			return webService.getMasters();
+		} catch (Exception e) {
+			LOG.info("getMasters====>Exception===>" + e.getStackTrace(), e);
+			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
+			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return resp.toString();
+	}
+	
+	
+	@GetMapping("getProjectMasters")
+	public String getProjectMasters(HttpServletRequest request) {
+		JSONObject resp = new JSONObject();
+		try {
+			LOG.info("<==getProjectMasters====>" );
+			return webService.getProjectMasters();
+		} catch (Exception e) {
+			LOG.info("getProjectMasters====>Exception===>" + e.getStackTrace(), e);
+			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
+			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return resp.toString();
+	}
+	
+	@GetMapping("getMaterialMasters")
+	public String getMaterialMasters(HttpServletRequest request) {
+		JSONObject resp = new JSONObject();
+		try {
+			LOG.info("<==getMaterialMasters====>" );
+			return webService.getMaterialMasters();
+		} catch (Exception e) {
+			LOG.info("getMaterialMasters====>Exception===>" + e.getStackTrace(), e);
+			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
+			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return resp.toString();
+	}
+	
 	@PostMapping("saveMaterialRequest")
 	public ResponseDTO saveMaterialRequest(HttpServletRequest request, @RequestBody String jsonData)
 			throws JSONException {
@@ -172,139 +232,12 @@ public class WebController {
 		return response;
 	}
 	
-	@GetMapping("getInventoryMaster")
-	public ResponseDTO getInventoryMaster(HttpServletRequest request)
-			throws JSONException {
-		LOG.info("getInventoryMaster");
-		ResponseDTO response = new ResponseDTO();
-		try {
-			response = webService.getInventoryMaster(request,response);
-		} catch (Exception e) {
-			LOG.info("" + e.getStackTrace(), e);
-		}
-		return response;
-	}
-
-	
-	@PostMapping("getEmployeeDashBoardDetailes")
-	public ResponseDTO getDashBoardDetailes(HttpServletRequest request,@RequestBody String jsonData) {
-		ResponseDTO responseDTO = new ResponseDTO();
-		try {
-			LOG.info("getEmployeeDashBoardDetailes=====jsonData====>"+jsonData);
-			if(request.getHeader("deviceType")!=null && !("").equalsIgnoreCase(request.getHeader("deviceType")) && !("web").equalsIgnoreCase(request.getHeader("deviceType")))
-			{
-				if (webService.getUserBasedOnCustomerIdNMobileNumberNDeviceId(request.getHeader("userId"),request.getHeader("mobileNumber"), request.getHeader("deviceId"),request.getHeader("deviceToken"))) {
-					if (jsonData != null) {
-						LOG.info("Phase====1");
-
-						responseDTO = webService.getEmployeeDashBoardDetailes(request, jsonData);
-
-					} else {
-						responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-						responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-					}
-				} else {
-					responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("LOGOUT_CODE")));
-					responseDTO.setMessage(appConfig.getProperty("LOGGED_IN_OTHER_DEVICE"));
-				}
-			} else {
-				if (webService.getUserBasedOnUserIdNMobileNumber(request.getHeader("userId"),request.getHeader("mobileNumber"))) {
-					
-					if (jsonData != null) {
-						LOG.info("Phase====2");
-						responseDTO = webService.getEmployeeDashBoardDetailes(request, jsonData);
-
-					} else {
-						responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-						responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-					}
-				} else {
-					responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-					responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-				}
-			}
-			
-		} catch (Exception e) {
-			LOG.info("Dashboard Count ==> "+e.getStackTrace(), e);
-			responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-			responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-		}
-		return responseDTO;
-		
-	}
-	
-	
-
-	@PostMapping("updateEmployee")
-	public ResponseDTO updateEmployee(HttpServletRequest request,
-			@RequestParam(value = "jsonData", required = false) String jsonData,
-			@RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
-
-		ResponseDTO resp = new ResponseDTO();
-		try {
-			LOG.info("==== updateEmployee ===jsonData===>" + jsonData);
-			return webService.addUserMaster(jsonData, request, profileImage);
-		} catch (Exception e) {
-			resp.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-			resp.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-			resp.setResponse(null);
-		}
-		return resp;
-	}
-	
-	
-	
-	
-	
-	@PostMapping("getExistingEmployeeDetails")
-	public ResponseDTO getExistingEmployeeDetails(HttpServletRequest request, @RequestBody String jsonData) {
-		ResponseDTO responseDTO = new ResponseDTO();
-		try {
-			LOG.info("<==getExistingEmployeeDetails===jsonData====>" + jsonData);
-			responseDTO = webService.getExistingEmployeeDetails(request, jsonData);
-		} catch (Exception e) {
-			LOG.info("getExistingEmployeeDetails====>Exception===>" + e.getStackTrace(), e);
-			responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-			responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-		}
-		return responseDTO;
-	}
-	
-	@PostMapping("reEmployeeMapping")
-	@Transactional
-	public ResponseDTO reMappingEmployee(HttpServletRequest request, @RequestBody String jsonData) {
-		ResponseDTO responseDTO = new ResponseDTO();
-		try {
-			LOG.info("<==reMappingEmployee===jsonData====>" + jsonData);
-			responseDTO = webService.reMappingEmployee(request, jsonData);
-		} catch (Exception e) {
-			LOG.info("reMappingEmployee====>Exception===>" + e.getStackTrace(), e);
-			responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
-			responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
-		}
-		return responseDTO;
-	}
-	
-	@GetMapping("getMasters")
-	public String getMasters(HttpServletRequest request) {
-		JSONObject resp = new JSONObject();
-		try {
-			LOG.info("<==getMasters====>" );
-			return webService.getMasters();
-		} catch (Exception e) {
-			LOG.info("getMasters====>Exception===>" + e.getStackTrace(), e);
-			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
-			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
-		}
-		return resp.toString();
-	}
-	
 	
 	@PostMapping("issueMaterialRequest")
 	public ResponseDTO issueMaterialRequest(HttpServletRequest request, @RequestBody String jsonData) {
 		ResponseDTO responseDTO = new ResponseDTO();
 		try {
-			LOG.info("<==getMasters====>" );
+			LOG.info("<==issueMaterialRequest====>" );
 			responseDTO= webService.issueMaterialRequest(jsonData);
 		} catch (Exception e) {
 			LOG.info("issueMaterialRequest====>Exception===>" + e.getStackTrace(), e);
@@ -314,28 +247,16 @@ public class WebController {
 		return responseDTO;
 	}
 	
-	@GetMapping("getProjectMasters")
-	public String getProjectMasters(HttpServletRequest request) {
-		JSONObject resp = new JSONObject();
-		try {
-			LOG.info("<==getProjectMasters====>" );
-			return webService.getProjectMasters();
-		} catch (Exception e) {
-			LOG.info("getProjectMasters====>Exception===>" + e.getStackTrace(), e);
-			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
-			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
-		}
-		return resp.toString();
-	}
 	
-	@GetMapping("getMaterialMasters")
-	public String getMaterialMasters(HttpServletRequest request) {
+	
+	@GetMapping("getIssueMaterialRequest")
+	public String getIssueMaterialRequest(HttpServletRequest request) {
 		JSONObject resp = new JSONObject();
 		try {
-			LOG.info("<==getMaterialMasters====>" );
-			return webService.getMaterialMasters();
+			LOG.info("<==getIssueMaterialRequest====>" );
+			return webService.getIssueMaterialRequest(request);
 		} catch (Exception e) {
-			LOG.info("getMaterialMasters====>Exception===>" + e.getStackTrace(), e);
+			LOG.info("getIssueMaterialRequest====>Exception===>" + e.getStackTrace(), e);
 			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
 			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
 		}

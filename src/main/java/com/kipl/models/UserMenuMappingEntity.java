@@ -1,7 +1,7 @@
 package com.kipl.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kipl.common.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

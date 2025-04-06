@@ -2,8 +2,8 @@ package com.kipl.models;
 
 import java.sql.Timestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kipl.common.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "MATRIAL_REQUEST_MASTER")
+@Table(name = "MATERIAL_REQUEST_MASTER")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MaterialRequestMaster extends BaseEntity{
 
@@ -52,6 +52,9 @@ public class MaterialRequestMaster extends BaseEntity{
 	
 	@Column(name = "COMMENTS")
 	private String comments;
+	
+	@Column(name = "REQUEST_ID")
+	private Long requestId;
 
 	public CompanyProjectMaster getProjectId() {
 		return projectId;
@@ -109,12 +112,17 @@ public class MaterialRequestMaster extends BaseEntity{
 		this.comments = comments;
 	}
 
-	@Override
-	public String toString() {
-		return "MaterialRequestMaster [projectId=" + projectId + ", requesterId=" + requesterId + ", requiredDate="
-				+ requiredDate + ", serialNumber=" + serialNumber + ", requestStatus=" + requestStatus
-				+ ", requiredLocation=" + requiredLocation + ", comments=" + comments + "]";
+	public Long getRequestId() {
+		return requestId;
 	}
+
+	public void setRequestId(Long requestId) {
+		this.requestId = requestId;
+	}
+
+	
+	
+	
 	
 	
 	

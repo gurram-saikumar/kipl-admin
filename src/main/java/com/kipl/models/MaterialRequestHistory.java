@@ -2,8 +2,8 @@ package com.kipl.models;
 
 import java.sql.Timestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kipl.common.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,6 +64,9 @@ public class MaterialRequestHistory extends BaseEntity{
 	
 	@Column(name = "UOM")
 	private String uom;
+	
+	@Column(name = "REQUEST_STATUS")
+	private String requestStatus;
 	
 	public Timestamp getRequiredDate() {
 		return requiredDate;
@@ -145,15 +148,13 @@ public class MaterialRequestHistory extends BaseEntity{
 		this.uom = uom;
 	}
 
-	@Override
-	public String toString() {
-		return "MaterialRequestHistory [requiredDate=" + requiredDate + ", serialNmuber=" + serialNmuber
-				+ ", requestId=" + requestId + ", projectId=" + projectId + ", materialTypeId=" + materialTypeId
-				+ ", materialId=" + materialId + ", requiredQuantity=" + requiredQuantity + ", totalOrderValue="
-				+ totalOrderValue + ", requestLocation=" + requestLocation + ", uom=" + uom + "]";
+	public String getRequestStatus() {
+		return requestStatus;
 	}
 
-
+	public void setRequestStatus(String requestStatus) {
+		this.requestStatus = requestStatus;
+	}
 
 	
 

@@ -11,11 +11,11 @@
 	</parent>
 
 	<groupId>com.kipl</groupId>
-	<artifactId>KIPL</artifactId>
+	<artifactId>kipl</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Kipl</name>
-	<description>KIPL</description>
+	<name>kipl</name>
+	<description>kipl</description>
 	<properties>
 		<java.version>17</java.version>
 		<start-class>
@@ -280,7 +280,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<finalName>Kipl</finalName>
+		<finalName>kipl</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

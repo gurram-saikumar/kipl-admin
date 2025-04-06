@@ -3,6 +3,7 @@ package com.kipl.dto;
 import java.util.List;
 
 public class MaterialRequestDto {
+	private Long materialRequestId;
 	private Long projectId;
 	private Long meterialId;
 	private String materialName;
@@ -11,6 +12,15 @@ public class MaterialRequestDto {
 	private Long requesterId;
 	private String requestedDate;
 	private List<MaterialRequestListDto> materialRequestList;
+	
+	private String issuedDate;
+	private Long issuerId;
+	private Double issuedQuantity;
+	private Long requestId;
+	private Long materialRequestHistoryId;
+	private String requesterName;
+	private String issuerName;
+	
 	public Long getProjectId() {
 		return projectId;
 	}
@@ -59,14 +69,64 @@ public class MaterialRequestDto {
 	public void setMaterialRequestList(List<MaterialRequestListDto> materialRequestList) {
 		this.materialRequestList = materialRequestList;
 	}
+	public String getIssuedDate() {
+		return issuedDate;
+	}
+	public void setIssuedDate(String issuedDate) {
+		this.issuedDate = issuedDate;
+	}
+	public Long getIssuerId() {
+		return issuerId;
+	}
+	public void setIssuerId(Long issuerId) {
+		this.issuerId = issuerId;
+	}
+	public Double getIssuedQuantity() {
+		return issuedQuantity;
+	}
+	public void setIssuedQuantity(Double issuedQuantity) {
+		this.issuedQuantity = issuedQuantity;
+	}
+	public Long getRequestId() {
+		return requestId;
+	}
+	public void setRequestId(Long requestId) {
+		this.requestId = requestId;
+	}
+	public Long getMaterialRequestHistoryId() {
+		return materialRequestHistoryId;
+	}
+	public void setMaterialRequestHistoryId(Long materialRequestHistoryId) {
+		this.materialRequestHistoryId = materialRequestHistoryId;
+	}
+	public String getRequesterName() {
+		return requesterName;
+	}
+	public void setRequesterName(String requesterName) {
+		this.requesterName = requesterName;
+	}
+	public String getIssuerName() {
+		return issuerName;
+	}
+	public void setIssuerName(String issuerName) {
+		this.issuerName = issuerName;
+	}
+	public Long getMaterialRequestId() {
+		return materialRequestId;
+	}
+	public void setMaterialRequestId(Long materialRequestId) {
+		this.materialRequestId = materialRequestId;
+	}
 	@Override
 	public String toString() {
-		return "MaterialRequestDto [projectId=" + projectId + ", meterialId=" + meterialId + ", materialName="
-				+ materialName + ", remarks=" + remarks + ", serialNumber=" + serialNumber + ", requesterId="
-				+ requesterId + ", requestedDate=" + requestedDate + ", materialRequestList=" + materialRequestList
-				+ "]";
+		return "MaterialRequestDto [materialRequestId=" + materialRequestId + ", projectId=" + projectId
+				+ ", meterialId=" + meterialId + ", materialName=" + materialName + ", remarks=" + remarks
+				+ ", serialNumber=" + serialNumber + ", requesterId=" + requesterId + ", requestedDate=" + requestedDate
+				+ ", materialRequestList=" + materialRequestList + ", issuedDate=" + issuedDate + ", issuerId="
+				+ issuerId + ", issuedQuantity=" + issuedQuantity + ", requestId=" + requestId
+				+ ", materialRequestHistoryId=" + materialRequestHistoryId + ", requesterName=" + requesterName
+				+ ", issuerName=" + issuerName + "]";
 	}
-	
 	
 	
 }

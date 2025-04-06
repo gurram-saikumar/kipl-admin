@@ -10,6 +10,11 @@ public class MaterialRequestListDto {
 	private Long projectId;
 	private String requiredDate;
 	private String uom;
+	private Long materialRequestHistoryId;
+	private String projectName;
+	private String issuerName;
+	private String requestStatus;
+	private Double issuedQuantity;
 	public String getMaterialName() {
 		return materialName;
 	}
@@ -58,14 +63,45 @@ public class MaterialRequestListDto {
 	public void setUom(String uom) {
 		this.uom = uom;
 	}
+	
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public String getIssuerName() {
+		return issuerName;
+	}
+	public void setIssuerName(String issuerName) {
+		this.issuerName = issuerName;
+	}
+	public String getRequestStatus() {
+		return requestStatus;
+	}
+	public void setRequestStatus(String requestStatus) {
+		this.requestStatus = requestStatus;
+	}
+	public Long getMaterialRequestHistoryId() {
+		return materialRequestHistoryId;
+	}
+	public void setMaterialRequestHistoryId(Long materialRequestHistoryId) {
+		this.materialRequestHistoryId = materialRequestHistoryId;
+	}
+	public Double getIssuedQuantity() {
+		return issuedQuantity;
+	}
+	public void setIssuedQuantity(Double issuedQuantity) {
+		this.issuedQuantity = issuedQuantity;
+	}
 	@Override
 	public String toString() {
 		return "MaterialRequestListDto [materialName=" + materialName + ", materialId=" + materialId
 				+ ", requiredQuantity=" + requiredQuantity + ", totalOrderValue=" + totalOrderValue
 				+ ", productRequiredLocation=" + productRequiredLocation + ", projectId=" + projectId
-				+ ", requiredDate=" + requiredDate + ", uom=" + uom + "]";
+				+ ", requiredDate=" + requiredDate + ", uom=" + uom + ", materialRequestHistoryId="
+				+ materialRequestHistoryId + ", projectName=" + projectName + ", issuerName=" + issuerName
+				+ ", requestStatus=" + requestStatus + ", issuedQuantity=" + issuedQuantity + "]";
 	}
-	
-	
 	
 }
