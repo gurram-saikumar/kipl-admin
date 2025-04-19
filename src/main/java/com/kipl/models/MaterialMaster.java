@@ -62,9 +62,6 @@ public class MaterialMaster extends BaseEntity{
 		
 	@Column(name = "UOM")
 	private String uom;
-		
-	@Column(name = "WEIGHT")
-	private String weight;
 	
 	@Column(name = "LOCATION")
 	private String location;
@@ -177,14 +174,6 @@ public class MaterialMaster extends BaseEntity{
 		this.uom = uom;
 	}
 
-	public String getWeight() {
-		return weight;
-	}
-
-	public void setWeight(String weight) {
-		this.weight = weight;
-	}
-
 	public String getLocation() {
 		return location;
 	}
@@ -230,10 +219,9 @@ public class MaterialMaster extends BaseEntity{
 		return "MaterialMaster [segment=" + segment + ", rmSize=" + rmSize + ", colour=" + colour + ", grade=" + grade
 				+ ", mpa=" + mpa + ", section=" + section + ", customer=" + customer + ", materialDescrption="
 				+ materialDescrption + ", length=" + length + ", width=" + width + ", thick=" + thick + ", uom=" + uom
-				+ ", weight=" + weight + ", location=" + location + ", remarks=" + remarks + ", price=" + price
-				+ ", materialCode=" + materialCode + ", materialType=" + materialType + "]";
+				+ ", location=" + location + ", remarks=" + remarks + ", price=" + price + ", materialCode="
+				+ materialCode + ", materialType=" + materialType + "]";
 	}
-
 
 	
 }

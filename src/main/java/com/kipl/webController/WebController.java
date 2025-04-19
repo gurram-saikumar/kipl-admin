@@ -262,5 +262,48 @@ public class WebController {
 		}
 		return resp.toString();
 	}
+	
+	@GetMapping("getDashboardDetailes")
+	public String getDashboardDetailes(HttpServletRequest request)
+	{
+		JSONObject resp = new JSONObject();
+		try {
+			LOG.info("<==dashboard====>" );
+			return webService.getDashboardDetailes(request);
+		} catch (Exception e) {
+			LOG.info("dashboard====>Exception===>" + e.getStackTrace(), e);
+			resp.put("statusCode", appConfig.getProperty("ERROR_CODE"));
+			resp.put("message", appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return resp.toString();
+	}
+	
+	@PostMapping("saveMaterialMaster")
+	public ResponseDTO saveMaterialMaster(HttpServletRequest request, @RequestBody String jsonData) {
+		ResponseDTO responseDTO = new ResponseDTO();
+		try {
+			LOG.info("<==saveMaterialMaster====>" );
+			responseDTO= webService.saveMaterialMaster(jsonData);
+		} catch (Exception e) {
+			LOG.info("saveMaterialMaster====>Exception===>" + e.getStackTrace(), e);
+			responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return responseDTO;
+	}
+	
+	@PostMapping("addItemInInventory ")
+	public ResponseDTO addItemInInventory(HttpServletRequest request, @RequestBody String jsonData) {
+		ResponseDTO responseDTO = new ResponseDTO();
+		try {
+			LOG.info("<==addItemInInventory ====>" );
+			responseDTO= webService.addItemInInventory(jsonData);
+		} catch (Exception e) {
+			LOG.info("saveMaterialMaster====>Exception===>" + e.getStackTrace(), e);
+			responseDTO.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			responseDTO.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return responseDTO;
+	}
 
 }

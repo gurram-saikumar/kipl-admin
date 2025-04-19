@@ -15,6 +15,8 @@ public class MaterialRequestListDto {
 	private String issuerName;
 	private String requestStatus;
 	private Double issuedQuantity;
+	private Double requiredWeight;
+
 	public String getMaterialName() {
 		return materialName;
 	}
@@ -94,6 +96,12 @@ public class MaterialRequestListDto {
 	public void setIssuedQuantity(Double issuedQuantity) {
 		this.issuedQuantity = issuedQuantity;
 	}
+	public Double getRequiredWeight() {
+		return requiredWeight;
+	}
+	public void setRequiredWeight(Double requiredWeight) {
+		this.requiredWeight = requiredWeight;
+	}
 	@Override
 	public String toString() {
 		return "MaterialRequestListDto [materialName=" + materialName + ", materialId=" + materialId
@@ -101,7 +109,9 @@ public class MaterialRequestListDto {
 				+ ", productRequiredLocation=" + productRequiredLocation + ", projectId=" + projectId
 				+ ", requiredDate=" + requiredDate + ", uom=" + uom + ", materialRequestHistoryId="
 				+ materialRequestHistoryId + ", projectName=" + projectName + ", issuerName=" + issuerName
-				+ ", requestStatus=" + requestStatus + ", issuedQuantity=" + issuedQuantity + "]";
+				+ ", requestStatus=" + requestStatus + ", issuedQuantity=" + issuedQuantity + ", requiredWeight="
+				+ requiredWeight + "]";
 	}
+	
 	
 }

@@ -1,32 +1,34 @@
 package com.kipl.models;
 
-import com.kipl.common.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kipl.common.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "INVENTORY_MASTER")
+@Table(name = "INVENTORY_HISTORY")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class InventoryMaster extends BaseEntity{
+public class InventoryHistory extends BaseEntity{
 
 	private static final long serialVersionUID = 1L;
 
-	public InventoryMaster() {
+	public InventoryHistory() {
 
 	}
 
-	public InventoryMaster(Long id) {
+	public InventoryHistory(Long id) {
 		this.id = id;
 	}
 
-	public InventoryMaster(String id) {
+	public InventoryHistory(String id) {
 		this.id = Long.parseLong(id);
 	}
 
-	
 	@Column(name = "SEGMENTS")
 	private String segment;
 	
@@ -90,6 +92,10 @@ public class InventoryMaster extends BaseEntity{
 	@Column(name = "MATERIAL_ID")
 	private String materialId;
 	
+	@ManyToOne
+	@JoinColumn(name= "INVENTORY_MASTER_ID")
+	private InventoryMaster inventoryMasterId;
+
 	public String getSegment() {
 		return segment;
 	}
@@ -258,15 +264,25 @@ public class InventoryMaster extends BaseEntity{
 		this.materialId = materialId;
 	}
 
+	public InventoryMaster getInventoryMasterId() {
+		return inventoryMasterId;
+	}
+
+	public void setInventoryMasterId(InventoryMaster inventoryMasterId) {
+		this.inventoryMasterId = inventoryMasterId;
+	}
+
 	@Override
 	public String toString() {
-		return "InventoryMaster [segment=" + segment + ", rmSize=" + rmSize + ", colour=" + colour + ", grade=" + grade
+		return "InventoryHistory [segment=" + segment + ", rmSize=" + rmSize + ", colour=" + colour + ", grade=" + grade
 				+ ", mpa=" + mpa + ", section=" + section + ", customer=" + customer + ", materialDescrption="
 				+ materialDescrption + ", totalQuantity=" + totalQuantity + ", availableQuantity=" + availableQuantity
 				+ ", length=" + length + ", width=" + width + ", thick=" + thick + ", uom=" + uom + ", weight=" + weight
 				+ ", location=" + location + ", remarks=" + remarks + ", price=" + price + ", materialCode="
-				+ materialCode + ", materialType=" + materialType + ", materialId=" + materialId + "]";
+				+ materialCode + ", materialType=" + materialType + ", materialId=" + materialId
+				+ ", inventoryMasterId=" + inventoryMasterId + "]";
 	}
-
 	
+	
+
 }

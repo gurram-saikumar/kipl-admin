@@ -45,6 +45,9 @@ public class IssueMaterialRequestMaster extends BaseEntity{
 	@Column(name ="ISSUED_QUANTITY")
 	private Double issuedQuantity;
 	
+	@Column(name ="ISSUED_WEIGHT")
+	private Double issuedWeight;
+	
 	@Column(name ="ISSUED_DATE")
 	private Timestamp issuedDate;
 	
@@ -101,13 +104,23 @@ public class IssueMaterialRequestMaster extends BaseEntity{
 		this.issueStatus = issueStatus;
 	}
 
+	public Double getIssuedWeight() {
+		return issuedWeight;
+	}
+
+	public void setIssuedWeight(Double issuedWeight) {
+		this.issuedWeight = issuedWeight;
+	}
+
 	@Override
 	public String toString() {
 		return "IssueMaterialRequestMaster [materialRequestMasterId=" + materialRequestMasterId
 				+ ", materialRequestHistoryId=" + materialRequestHistoryId + ", issuerId=" + issuerId
-				+ ", issuedQuantity=" + issuedQuantity + ", issuedDate=" + issuedDate + ", issueStatus=" + issueStatus
-				+ "]";
+				+ ", issuedQuantity=" + issuedQuantity + ", issuedWeight=" + issuedWeight + ", issuedDate=" + issuedDate
+				+ ", issueStatus=" + issueStatus + "]";
 	}
+
+
 
 	
 	

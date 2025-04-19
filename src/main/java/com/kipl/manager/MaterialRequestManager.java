@@ -62,4 +62,52 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 				return null;
 			}
 	    }
+
+		public Long getMaterialRequestCount(Long userId) {
+			try {
+				String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+"";
+				LOG.info("getMaterialRequestCount==>" + hql);
+				Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
+				return result != null ? result.longValue() : 0L;
+			} catch (Exception e) {
+				LOG.info("==Exception==" + e.getStackTrace(), e);
+				return 0L;
+			}
+		}
+
+	public Long getMaterialPendingCount(Long userId) {
+		try {
+			String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+"  and requestStatus in ('Submitted')";
+			LOG.info("getMaterialPendingCount==>" + hql);
+			Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
+			return result != null ? result.longValue() : 0L;
+		} catch (Exception e) {
+			LOG.info("==Exception==" + e.getStackTrace(), e);
+			return 0L;
+		}
+	}
+
+	public Long getMaterialIssuedCount(Long userId) {
+		try {
+			String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+" and requestStatus in ('Partial Completed','Completed')";
+			LOG.info("getMaterialIssuedCount==>" + hql);
+			Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
+			return result != null ? result.longValue() : 0L;
+		} catch (Exception e) {
+			LOG.info("==Exception==" + e.getStackTrace(), e);
+			return 0L;
+		}
+	}
+
+	public Long getMaterialRequestCompletedCount(Long userId) {
+		try {
+			String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+" and requestStatus='Completed'";
+			LOG.info("getMaterialRequestCompletedCount==>" + hql);
+			Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
+			return result != null ? result.longValue() : 0L;
+		} catch (Exception e) {
+			LOG.info("==Exception==" + e.getStackTrace(), e);
+			return 0L;
+		}
+	}
 }

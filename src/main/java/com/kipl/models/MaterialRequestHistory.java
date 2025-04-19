@@ -68,6 +68,9 @@ public class MaterialRequestHistory extends BaseEntity{
 	@Column(name = "REQUEST_STATUS")
 	private String requestStatus;
 	
+	@Column(name = "REQUIRED_WEIGHT")
+	private Double requiredWeight;
+	
 	public Timestamp getRequiredDate() {
 		return requiredDate;
 	}
@@ -154,6 +157,14 @@ public class MaterialRequestHistory extends BaseEntity{
 
 	public void setRequestStatus(String requestStatus) {
 		this.requestStatus = requestStatus;
+	}
+
+	public Double getRequiredWeight() {
+		return requiredWeight;
+	}
+
+	public void setRequiredWeight(Double requiredWeight) {
+		this.requiredWeight = requiredWeight;
 	}
 
 	

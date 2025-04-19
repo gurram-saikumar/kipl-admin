@@ -20,6 +20,8 @@ public class MaterialRequestDto {
 	private Long materialRequestHistoryId;
 	private String requesterName;
 	private String issuerName;
+	private Double issuedWeight;
+
 	
 	public Long getProjectId() {
 		return projectId;
@@ -117,6 +119,12 @@ public class MaterialRequestDto {
 	public void setMaterialRequestId(Long materialRequestId) {
 		this.materialRequestId = materialRequestId;
 	}
+	public Double getIssuedWeight() {
+		return issuedWeight;
+	}
+	public void setIssuedWeight(Double issuedWeight) {
+		this.issuedWeight = issuedWeight;
+	}
 	@Override
 	public String toString() {
 		return "MaterialRequestDto [materialRequestId=" + materialRequestId + ", projectId=" + projectId
@@ -125,8 +133,7 @@ public class MaterialRequestDto {
 				+ ", materialRequestList=" + materialRequestList + ", issuedDate=" + issuedDate + ", issuerId="
 				+ issuerId + ", issuedQuantity=" + issuedQuantity + ", requestId=" + requestId
 				+ ", materialRequestHistoryId=" + materialRequestHistoryId + ", requesterName=" + requesterName
-				+ ", issuerName=" + issuerName + "]";
+				+ ", issuerName=" + issuerName + ", issuedWeight=" + issuedWeight + "]";
 	}
-	
 	
 }

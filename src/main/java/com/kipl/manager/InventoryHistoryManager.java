@@ -8,24 +8,24 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.kipl.common.GenericManager;
+import com.kipl.models.InventoryHistory;
 import com.kipl.models.InventoryMaster;
-import com.kipl.models.MaterialMaster;
 
 @Repository
-public class InventoryMasterManager extends GenericManager<InventoryMaster, Long>{
-	private static final Logger LOG = LogManager.getLogger(InventoryMasterManager.class);
+public class InventoryHistoryManager extends GenericManager<InventoryHistory, Long>{
+	private static final Logger LOG = LogManager.getLogger(InventoryHistoryManager.class);
 
-	public InventoryMasterManager() {
-		super(InventoryMaster.class);
+	public InventoryHistoryManager() {
+		super(InventoryHistory.class);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<InventoryMaster> getAllInventoryList() {
-		List<InventoryMaster> list = new ArrayList<InventoryMaster>();
+	public List<InventoryHistory> getAllInventoryHistoryList() {
+		List<InventoryHistory> list = new ArrayList<InventoryHistory>();
 		try {
-			list = find("from InventoryMaster where 1=1");
+			list = find("from InventoryHistory where 1=1");
 		} catch (Exception e) {
-			LOG.info("<=== Exception getAllInventoryList ===>" + e.getStackTrace(), e);
+			LOG.info("<=== Exception getAllInventoryHistoryList ===>" + e.getStackTrace(), e);
 			list = null;
 		}
 		return list;
