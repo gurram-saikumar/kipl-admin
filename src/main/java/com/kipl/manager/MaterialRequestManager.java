@@ -63,9 +63,13 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 			}
 	    }
 
-		public Long getMaterialRequestCount(Long userId) {
+		public Long getMaterialRequestCount(Long userId, Long roleId) {
 			try {
-				String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+"";
+				String hql = "";
+				if(roleId==1 || roleId==2)
+					hql = "select count(*) from MaterialRequestMaster";
+				else 
+					hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+"";
 				LOG.info("getMaterialRequestCount==>" + hql);
 				Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
 				return result != null ? result.longValue() : 0L;
@@ -75,9 +79,13 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 			}
 		}
 
-	public Long getMaterialPendingCount(Long userId) {
+	public Long getMaterialPendingCount(Long userId, Long roleId) {
 		try {
-			String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+"  and requestStatus in ('Submitted')";
+			String hql = "";
+			if(roleId==1 || roleId==2)
+				hql = "select count(*) from MaterialRequestMaster where  requestStatus in ('Submitted')";
+			else 
+				hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+"  and requestStatus in ('Submitted')";
 			LOG.info("getMaterialPendingCount==>" + hql);
 			Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
 			return result != null ? result.longValue() : 0L;
@@ -87,9 +95,13 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 		}
 	}
 
-	public Long getMaterialIssuedCount(Long userId) {
+	public Long getMaterialIssuedCount(Long userId,Long roleId) {
 		try {
-			String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+" and requestStatus in ('Partial Completed','Completed')";
+			String hql = "";
+			if(roleId==1 || roleId==2)
+				hql = "select count(*) from MaterialRequestMaster where  requestStatus in ('Partial Completed')";
+			else 
+				 hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+" and requestStatus in ('Partial Completed')";
 			LOG.info("getMaterialIssuedCount==>" + hql);
 			Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
 			return result != null ? result.longValue() : 0L;
@@ -99,9 +111,13 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 		}
 	}
 
-	public Long getMaterialRequestCompletedCount(Long userId) {
+	public Long getMaterialRequestCompletedCount(Long userId,Long roleId) {
 		try {
-			String hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+" and requestStatus='Completed'";
+			String hql = "";
+			if(roleId==1 || roleId==2)
+				hql = "select count(*) from MaterialRequestMaster where  requestStatus='Completed'";
+			else 
+				 hql = "select count(*) from MaterialRequestMaster where  requesterId.id="+userId+" and requestStatus='Completed'";
 			LOG.info("getMaterialRequestCompletedCount==>" + hql);
 			Number result = (Number) hibernateDao.getSession().createQuery(hql).uniqueResult();
 			return result != null ? result.longValue() : 0L;

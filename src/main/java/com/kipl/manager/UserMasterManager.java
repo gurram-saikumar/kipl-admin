@@ -85,6 +85,12 @@ public class UserMasterManager extends GenericManager<UserMaster, Long> {
 		return (UserMaster) findObject(sql);	
 	}
 	
+	public UserMaster getUserDetailsBasedOnMobileNumberAndPasscode(String mobileNumber, String passCode) {
+		String sql="from UserMaster where status=true and mobileNumber = '" + mobileNumber + "' and passcode='"+passCode+"'";
+		LOG.info("getUserDetailsBasedOnMobileNumberAndPasscode sql===>"+sql);
+		return (UserMaster) findObject(sql);	
+	}
+	
 	@SuppressWarnings("unchecked")
 	public UserMaster findActiveUserByMobileNumberAndExcludingId(String mobileNumber, Long id) {
 		try {

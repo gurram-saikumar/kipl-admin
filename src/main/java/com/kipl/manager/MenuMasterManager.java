@@ -24,7 +24,7 @@ public class MenuMasterManager extends GenericManager<MenuMaster, Long>{
 	public List<MenuMaster> getMenuListbasedOnType(String type) {
 		
 		try {
-			String hql = "from MenuMaster where status=true and type='"+type+"'";
+			String hql = "from MenuMaster where status=true and type='"+type+"' order by displayOrder";
 			LOG.info("getMenuListbasedOnType==>"+hql);
 			List<MenuMaster> li = find(hql);
 			return li;

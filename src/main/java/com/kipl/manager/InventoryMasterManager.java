@@ -34,7 +34,7 @@ public class InventoryMasterManager extends GenericManager<InventoryMaster, Long
 
 	@SuppressWarnings("unchecked")
 	public Double getInventoryAvailableQunatityBasedonMaterialId(String materialId) {
-		  String hql = "select sum(availableQuantity) from InventoryMaster where materialId='"+materialId+"' ";
+		  String hql = "select ROUND(SUM(availableWeight),2) from InventoryMaster where materialId='"+materialId+"' ";
 	        LOG.info("getSurveyCountForProductPerformance==> " + hql);
 	        List<Double> ids = find(hql);
 	        return ids != null && !ids.isEmpty() ? ids.get(0) : null;
@@ -61,6 +61,20 @@ public class InventoryMasterManager extends GenericManager<InventoryMaster, Long
 	LOG.info("getMaterialExistBasedOnRMSize==> " + hql);
 	List<InventoryMaster> ids = find(hql);
 	return ids != null && !ids.isEmpty() ? ids.get(0) : null;
+	}
+
+	public Double getInventoryTotalWeight() {
+		String hql = "select  ROUND(SUM(totalWeight),2) from InventoryMaster  ";
+        LOG.info("getInventoryTotalWeight==> " + hql);
+        List<Double> ids = find(hql);
+        return ids != null && !ids.isEmpty() ? ids.get(0) : null;
+	}
+	
+	public Double getInventoryAvailableWeight() {
+		String hql = "select ROUND(SUM(totalWeight)-SUM(availableWeight),2) from InventoryMaster  ";
+        LOG.info("getInventoryAvailableWeight==> " + hql);
+        List<Double> ids = find(hql);
+        return ids != null && !ids.isEmpty() ? ids.get(0) : null;
 	}
 
 }

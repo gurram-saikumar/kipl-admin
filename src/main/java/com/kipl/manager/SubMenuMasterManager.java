@@ -23,7 +23,7 @@ public class SubMenuMasterManager extends GenericManager<SubMenuMaster, Long>{
 	@SuppressWarnings("unchecked")
 	public List<SubMenuMaster> getSubMenuListBasedOnManuId(Long menuId) {
 		try {
-			String hql = "from SubMenuMaster where menuId.id="+menuId+" ";
+			String hql = "from SubMenuMaster where menuId.id="+menuId+" and status=true";
 			List<SubMenuMaster> li = find(hql);
 			return li;
 		} catch (Exception e) {

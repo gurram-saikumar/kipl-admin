@@ -69,7 +69,7 @@ public class UserMenuMappingManager extends GenericManager<UserMenuMappingEntity
 	
 	public UserMenuMappingEntity getUserMenuByRoleIdAndMainMenuId(Long roleId,Long mainMenuId) {
 		try {
-			String sql=" FROM UserMenuMappingEntity WHERE status = true and roleId.id ="+roleId+" and menuId.id="+mainMenuId+" and isView=true";
+			String sql=" FROM UserMenuMappingEntity WHERE status = true and roleId.id ="+roleId+" and menuId.id="+mainMenuId+" and isView=true order by displayOrder";
 			return (UserMenuMappingEntity) findObject(sql);
 		} catch (Exception e) {
 			LOG.info("Exception getUserMenuByRoleIdAndStateIdAndMainMenuId=======> " +e.getStackTrace(), e);
@@ -90,7 +90,7 @@ public class UserMenuMappingManager extends GenericManager<UserMenuMappingEntity
 	
 	public UserMenuMappingEntity getUserMenuByRoleIdAndSubMenuId(Long roleId,Long subMenuId) {
 		try {
-			String sql=" FROM UserMenuMappingEntity WHERE status = true and roleId.id ="+roleId+" and subMenuId.id="+subMenuId+" and isView = true";
+			String sql=" FROM UserMenuMappingEntity WHERE status = true and roleId.id ="+roleId+" and subMenuId.id="+subMenuId+" and isView = true order by displayOrder";
 			return (UserMenuMappingEntity) findObject(sql);
 		} catch (Exception e) {
 			LOG.info("Exception getUserMenuByRoleIdAndStateIdAndSubMenuId=======> " +e.getStackTrace(), e);

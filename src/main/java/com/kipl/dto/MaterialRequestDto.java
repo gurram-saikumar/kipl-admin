@@ -5,6 +5,7 @@ import java.util.List;
 public class MaterialRequestDto {
 	private Long materialRequestId;
 	private Long projectId;
+	private String projectName;
 	private Long meterialId;
 	private String materialName;
 	private String remarks;
@@ -12,7 +13,6 @@ public class MaterialRequestDto {
 	private Long requesterId;
 	private String requestedDate;
 	private List<MaterialRequestListDto> materialRequestList;
-	
 	private String issuedDate;
 	private Long issuerId;
 	private Double issuedQuantity;
@@ -21,6 +21,12 @@ public class MaterialRequestDto {
 	private String requesterName;
 	private String issuerName;
 	private Double issuedWeight;
+	
+	
+	private Double totalOrderValue;
+	private String requiredDate;
+	private String productRequiredLocationName;
+	private Long productRequiredLocationId;
 
 	
 	public Long getProjectId() {
@@ -125,15 +131,48 @@ public class MaterialRequestDto {
 	public void setIssuedWeight(Double issuedWeight) {
 		this.issuedWeight = issuedWeight;
 	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public Double getTotalOrderValue() {
+		return totalOrderValue;
+	}
+	public void setTotalOrderValue(Double totalOrderValue) {
+		this.totalOrderValue = totalOrderValue;
+	}
+	public String getRequiredDate() {
+		return requiredDate;
+	}
+	public void setRequiredDate(String requiredDate) {
+		this.requiredDate = requiredDate;
+	}
+	public String getProductRequiredLocationName() {
+		return productRequiredLocationName;
+	}
+	public void setProductRequiredLocationName(String productRequiredLocationName) {
+		this.productRequiredLocationName = productRequiredLocationName;
+	}
+	public Long getProductRequiredLocationId() {
+		return productRequiredLocationId;
+	}
+	public void setProductRequiredLocationId(Long productRequiredLocationId) {
+		this.productRequiredLocationId = productRequiredLocationId;
+	}
 	@Override
 	public String toString() {
 		return "MaterialRequestDto [materialRequestId=" + materialRequestId + ", projectId=" + projectId
-				+ ", meterialId=" + meterialId + ", materialName=" + materialName + ", remarks=" + remarks
-				+ ", serialNumber=" + serialNumber + ", requesterId=" + requesterId + ", requestedDate=" + requestedDate
-				+ ", materialRequestList=" + materialRequestList + ", issuedDate=" + issuedDate + ", issuerId="
-				+ issuerId + ", issuedQuantity=" + issuedQuantity + ", requestId=" + requestId
-				+ ", materialRequestHistoryId=" + materialRequestHistoryId + ", requesterName=" + requesterName
-				+ ", issuerName=" + issuerName + ", issuedWeight=" + issuedWeight + "]";
+				+ ", projectName=" + projectName + ", meterialId=" + meterialId + ", materialName=" + materialName
+				+ ", remarks=" + remarks + ", serialNumber=" + serialNumber + ", requesterId=" + requesterId
+				+ ", requestedDate=" + requestedDate + ", materialRequestList=" + materialRequestList + ", issuedDate="
+				+ issuedDate + ", issuerId=" + issuerId + ", issuedQuantity=" + issuedQuantity + ", requestId="
+				+ requestId + ", materialRequestHistoryId=" + materialRequestHistoryId + ", requesterName="
+				+ requesterName + ", issuerName=" + issuerName + ", issuedWeight=" + issuedWeight + ", totalOrderValue="
+				+ totalOrderValue + ", requiredDate=" + requiredDate + ", productRequiredLocationName="
+				+ productRequiredLocationName + ", productRequiredLocationId=" + productRequiredLocationId + "]";
 	}
+
 	
 }

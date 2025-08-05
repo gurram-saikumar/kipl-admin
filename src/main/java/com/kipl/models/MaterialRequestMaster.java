@@ -34,6 +34,9 @@ public class MaterialRequestMaster extends BaseEntity{
 	@JoinColumn(name = "PROJECT_ID")
 	private CompanyProjectMaster projectId;
 	
+	@Column(name = "PROJECT_NAME")
+	private String projectName;
+	
 	@ManyToOne
 	@JoinColumn(name = "REQUESTER_ID")
 	private UserMaster requesterId;
@@ -55,6 +58,18 @@ public class MaterialRequestMaster extends BaseEntity{
 	
 	@Column(name = "REQUEST_ID")
 	private Long requestId;
+	
+	@Column(name ="TOTAL_ORDER_VALUE")
+	private Double totalOrderValue;
+	
+	@Column(name = "PRODUCT_REQUIRED_LOCATION_NAME")
+	private String productRequiredLocationName;
+	
+	@Column(name ="PRODUCT_REQUIRED_LOCATION_ID")
+	private Long productRequiredLocationId;
+	
+	@Column(name ="REMARKS")
+	private String remarks;
 
 	public CompanyProjectMaster getProjectId() {
 		return projectId;
@@ -62,6 +77,14 @@ public class MaterialRequestMaster extends BaseEntity{
 
 	public void setProjectId(CompanyProjectMaster projectId) {
 		this.projectId = projectId;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 
 	public UserMaster getRequesterId() {
@@ -120,10 +143,37 @@ public class MaterialRequestMaster extends BaseEntity{
 		this.requestId = requestId;
 	}
 
-	
-	
-	
-	
-	
+	public Double getTotalOrderValue() {
+		return totalOrderValue;
+	}
+
+	public void setTotalOrderValue(Double totalOrderValue) {
+		this.totalOrderValue = totalOrderValue;
+	}
+
+	public String getProductRequiredLocationName() {
+		return productRequiredLocationName;
+	}
+
+	public void setProductRequiredLocationName(String productRequiredLocationName) {
+		this.productRequiredLocationName = productRequiredLocationName;
+	}
+
+	public Long getProductRequiredLocationId() {
+		return productRequiredLocationId;
+	}
+
+	public void setProductRequiredLocationId(Long productRequiredLocationId) {
+		this.productRequiredLocationId = productRequiredLocationId;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
 	
 }

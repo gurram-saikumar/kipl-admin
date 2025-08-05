@@ -20,6 +20,18 @@ public class IssueMaterialRequestMasterManager extends GenericManager<IssueMater
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<IssueMaterialRequestMaster> getIssueMaterialList() {
+		List<IssueMaterialRequestMaster> list = new ArrayList<IssueMaterialRequestMaster>();
+		try {
+			list = find("from IssueMaterialRequestMaster where status=true  order by id desc ");
+		} catch (Exception e) {
+			LOG.info("<=== Exception getIssueMaterialList ===>" + e.getStackTrace(), e);
+			list = null;
+		}
+		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public List<IssueMaterialRequestMaster> getIssueMaterialListBasedonIssuerId(Long issuerId) {
 		List<IssueMaterialRequestMaster> list = new ArrayList<IssueMaterialRequestMaster>();
 		try {
@@ -36,6 +48,16 @@ public class IssueMaterialRequestMasterManager extends GenericManager<IssueMater
 	            + "SELECT COALESCE(SUM(issuedQuantity), 0) FROM IssueMaterialRequestMaster WHERE materialRequestHistoryId.id = " + id);
 
 	    String sql = "SELECT COALESCE(SUM(issuedQuantity), 0) FROM IssueMaterialRequestMaster WHERE materialRequestHistoryId.id = " + id;
+	    Double acres = (Double) getSum(sql);
+	    
+	    return acres;
+	}
+
+	public Double getIssuedWeightBasedonMaterialRequestHistoryId(Long id) {
+		LOG.info("getIssuedWeightBasedonMaterialRequestHistoryId  ------------>"
+	            + "SELECT COALESCE(SUM(issuedWeight), 0) FROM IssueMaterialRequestMaster WHERE materialRequestHistoryId.id = " + id);
+
+	    String sql = "SELECT COALESCE(SUM(issuedWeight), 0) FROM IssueMaterialRequestMaster WHERE materialRequestHistoryId.id = " + id;
 	    Double acres = (Double) getSum(sql);
 	    
 	    return acres;

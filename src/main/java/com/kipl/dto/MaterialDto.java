@@ -1,6 +1,8 @@
 package com.kipl.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MaterialDto {
 
 	private String rmSize;
@@ -24,6 +26,15 @@ public class MaterialDto {
 	private Double totalQuantity;
 	private Double availableQuantity;
 	private Double quantity;
+	private String materialName;
+	
+	private Double totalWeight;
+	private Double availableWeight;
+	
+	private Double issuedQuantity;
+	private Double issuedWeight;
+	
+	private Long inventoryMasterId;
 	
 	public String getRmSize() {
 		return rmSize;
@@ -151,6 +162,42 @@ public class MaterialDto {
 	public void setQuantity(Double quantity) {
 		this.quantity = quantity;
 	}
+	public Long getInventoryMasterId() {
+		return inventoryMasterId;
+	}
+	public void setInventoryMasterId(Long inventoryMasterId) {
+		this.inventoryMasterId = inventoryMasterId;
+	}
+	public Double getTotalWeight() {
+		return totalWeight;
+	}
+	public void setTotalWeight(Double totalWeight) {
+		this.totalWeight = totalWeight;
+	}
+	public Double getAvailableWeight() {
+		return availableWeight;
+	}
+	public void setAvailableWeight(Double availableWeight) {
+		this.availableWeight = availableWeight;
+	}
+	public String getMaterialName() {
+		return materialName;
+	}
+	public void setMaterialName(String materialName) {
+		this.materialName = materialName;
+	}
+	public Double getIssuedQuantity() {
+		return issuedQuantity;
+	}
+	public void setIssuedQuantity(Double issuedQuantity) {
+		this.issuedQuantity = issuedQuantity;
+	}
+	public Double getIssuedWeight() {
+		return issuedWeight;
+	}
+	public void setIssuedWeight(Double issuedWeight) {
+		this.issuedWeight = issuedWeight;
+	}
 	@Override
 	public String toString() {
 		return "MaterialDto [rmSize=" + rmSize + ", segment=" + segment + ", colour=" + colour + ", grade=" + grade
@@ -158,7 +205,11 @@ public class MaterialDto {
 				+ materialDescrption + ", length=" + length + ", width=" + width + ", thick=" + thick + ", uom=" + uom
 				+ ", weight=" + weight + ", location=" + location + ", remarks=" + remarks + ", price=" + price
 				+ ", materialCode=" + materialCode + ", materialType=" + materialType + ", totalQuantity="
-				+ totalQuantity + ", availableQuantity=" + availableQuantity + ", quantity=" + quantity + "]";
+				+ totalQuantity + ", availableQuantity=" + availableQuantity + ", quantity=" + quantity
+				+ ", materialName=" + materialName + ", totalWeight=" + totalWeight + ", availableWeight="
+				+ availableWeight + ", issuedQuantity=" + issuedQuantity + ", issuedWeight=" + issuedWeight
+				+ ", inventoryMasterId=" + inventoryMasterId + "]";
 	}
 	
+
 }

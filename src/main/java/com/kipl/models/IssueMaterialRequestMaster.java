@@ -53,6 +53,12 @@ public class IssueMaterialRequestMaster extends BaseEntity{
 	
 	@Column(name="ISSUE_STATUS")
 	private String issueStatus;
+	
+	@Column(name ="WIP_QUANTITY")
+	private Double wipQuantity;
+	
+	@Column(name ="WIP_WEIGHT")
+	private Double wipWeight;
 
 	
 

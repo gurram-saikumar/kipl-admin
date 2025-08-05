@@ -69,8 +69,8 @@ public class InventoryMaster extends BaseEntity{
 	@Column(name = "UOM")
 	private String uom;
 		
-	@Column(name = "WEIGHT")
-	private Double weight;
+	@Column(name = "TOTAL_WEIGHT")
+	private Double totalWeight;
 	
 	@Column(name = "LOCATION")
 	private String location;
@@ -89,6 +89,9 @@ public class InventoryMaster extends BaseEntity{
 
 	@Column(name = "MATERIAL_ID")
 	private String materialId;
+	
+	@Column(name = "AVAILABLE_WEIGHT")
+	private Double availableWeight;
 	
 	public String getSegment() {
 		return segment;
@@ -202,14 +205,6 @@ public class InventoryMaster extends BaseEntity{
 		this.uom = uom;
 	}
 
-	public Double getWeight() {
-		return weight;
-	}
-
-	public void setWeight(Double weight) {
-		this.weight = weight;
-	}
-
 	public String getLocation() {
 		return location;
 	}
@@ -258,14 +253,31 @@ public class InventoryMaster extends BaseEntity{
 		this.materialId = materialId;
 	}
 
+	public Double getTotalWeight() {
+		return totalWeight;
+	}
+
+	public void setTotalWeight(Double totalWeight) {
+		this.totalWeight = totalWeight;
+	}
+
+	public Double getAvailableWeight() {
+		return availableWeight;
+	}
+
+	public void setAvailableWeight(Double availableWeight) {
+		this.availableWeight = availableWeight;
+	}
+
 	@Override
 	public String toString() {
 		return "InventoryMaster [segment=" + segment + ", rmSize=" + rmSize + ", colour=" + colour + ", grade=" + grade
 				+ ", mpa=" + mpa + ", section=" + section + ", customer=" + customer + ", materialDescrption="
 				+ materialDescrption + ", totalQuantity=" + totalQuantity + ", availableQuantity=" + availableQuantity
-				+ ", length=" + length + ", width=" + width + ", thick=" + thick + ", uom=" + uom + ", weight=" + weight
-				+ ", location=" + location + ", remarks=" + remarks + ", price=" + price + ", materialCode="
-				+ materialCode + ", materialType=" + materialType + ", materialId=" + materialId + "]";
+				+ ", length=" + length + ", width=" + width + ", thick=" + thick + ", uom=" + uom + ", totalWeight="
+				+ totalWeight + ", location=" + location + ", remarks=" + remarks + ", price=" + price
+				+ ", materialCode=" + materialCode + ", materialType=" + materialType + ", materialId=" + materialId
+				+ ", availableWeight=" + availableWeight + "]";
 	}
 
 	

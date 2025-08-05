@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.kipl.dto.ResponseDTO;
+import com.kipl.webService.MobileService;
 import com.kipl.webService.WebService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,8 @@ public class WebController {
 	private static final Logger LOG = LogManager.getLogger(WebController.class);
 	@Autowired
 	private Environment appConfig;
+	
+	@Autowired private MobileService mobileService;
 
 //	@Autowired
 //	private UserMasterManager userInfoManager;
@@ -292,7 +295,7 @@ public class WebController {
 		return responseDTO;
 	}
 	
-	@PostMapping("addItemInInventory ")
+	@PostMapping("addItemInInventory")
 	public ResponseDTO addItemInInventory(HttpServletRequest request, @RequestBody String jsonData) {
 		ResponseDTO responseDTO = new ResponseDTO();
 		try {
@@ -305,5 +308,86 @@ public class WebController {
 		}
 		return responseDTO;
 	}
+	
+	@PostMapping("editInventoryMaster")
+	public ResponseDTO getInventoryMaster(HttpServletRequest request, @RequestBody String jsonData)
+			throws JSONException {
+		LOG.info("editInventoryMaster");
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.editInventoryMaster(request,jsonData,response);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
+	
+	@GetMapping("getReports")
+	public ResponseDTO getReports(HttpServletRequest request)
+			throws JSONException {
+		LOG.info("getReports");
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.getReports(request,response);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
+	
+	@GetMapping("getBillOfMaterialList")
+	public ResponseDTO getBillOfMaterialList(HttpServletRequest request)
+			throws JSONException {
+		LOG.info("getBillOfMaterialList");
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.getBillOfMaterialList(request,response);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
+	
+
+	@PostMapping("mobileLogin")
+	public ResponseDTO mobileLogin(HttpServletRequest request, @RequestBody String jsonData) {
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = mobileService.mobileValidateLogin(request, jsonData);
+		} catch (Exception e) {
+			LOG.info("login Exception==> " + e.getStackTrace());
+			response.setResponse(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return response;
+	}
+	
+	@PostMapping("forgetPasscode")
+	public ResponseDTO forgetPasscode(HttpServletRequest request, @RequestBody String jsonData) {
+		LOG.info("/jsonData ==>" + jsonData.toString());
+		ResponseDTO resp = new ResponseDTO();
+		try {
+			resp = mobileService.forgetPasscode(request, resp, jsonData);
+		} catch (Exception e) {
+			LOG.info(e.getStackTrace(),e);
+			resp=null;
+		}
+		return resp;
+	}
+	
+	@PostMapping("saveMaterialRequestForMobile")
+	public ResponseDTO saveMaterialRequestForMobile(HttpServletRequest request, @RequestBody String jsonData)
+			throws JSONException {
+		LOG.info("saveMaterialRequestForMobile"+jsonData);
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.saveMaterialRequestForMobile(request,response, jsonData);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
+	
 
 }

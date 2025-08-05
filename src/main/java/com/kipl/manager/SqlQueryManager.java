@@ -1,19 +1,29 @@
 package com.kipl.manager;
 
+
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.query.NativeQuery;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.StandardBasicTypes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import com.kipl.common.HibernateDao;
+import com.kipl.dto.MaterialDto;
 
 import jakarta.transaction.Transactional;
 
 @SuppressWarnings("deprecation")
 @Repository
+@Component
 public class SqlQueryManager {
 	private static final Log LOG = LogFactory.getLog(SqlQueryManager.class);
 
-	protected HibernateDao hibernateDao;
+	@Autowired private HibernateDao hibernateDao;
 	//private Environment appConfig;
 	
 	
@@ -75,14 +85,32 @@ public class SqlQueryManager {
 	
 	public Long getInventoryAvailableQunatityBasedonMaterialId(Long id) {
 		try {
-			StringBuilder sql = new StringBuilder("select SUM(AVAILABLE_QUANTITY) from INVENTORY_MASTER where MATERIAL_ID = '" + id+ "'");
+			StringBuilder sql = new StringBuilder(
+					"select SUM(AVAILABLE_QUANTITY) from INVENTORY_MASTER where MATERIAL_ID = '" + id + "'");
 			Object result = hibernateDao.getSession().createNativeQuery(sql.toString()).uniqueResult();
-	        return result != null ? ((Number) result).longValue() : 0L;	 			
+			return result != null ? ((Number) result).longValue() : 0L;
 		} catch (Exception e) {
-			LOG.info(""+e.getStackTrace(),e);
+			LOG.info("" + e.getStackTrace(), e);
 			return 0L;
 		}
-}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<MaterialDto> getInventoryCountBasedOnSegments() {
+		try {
+			String sql = "select distinct SEGMENTS AS segment, ROUND(COALESCE(SUM(TOTAL_WEIGHT), 0),2) AS totalWeight, ROUND(COALESCE(SUM(AVAILABLE_WEIGHT), 0),2) AS availableWeight from INVENTORY_MASTER group by SEGMENTS";
+			LOG.info("getMandiPricesLatestPriceByCrop===>"+sql);
+			NativeQuery<MaterialDto> sqlQuery = hibernateDao.getSession().createNativeQuery(sql);
+			sqlQuery.addScalar("segment", StandardBasicTypes.STRING);
+			sqlQuery.addScalar("totalWeight", StandardBasicTypes.DOUBLE);	
+			sqlQuery.addScalar("availableWeight", StandardBasicTypes.DOUBLE);	
+			return sqlQuery.setResultTransformer(Transformers.aliasToBean(MaterialDto.class)).list();
+		} catch (Exception e) {
+			LOG.info("Exception in checkExistingRecordEntity========>" + e.getStackTrace(), e);
+			return null;
+		}
+
+	}
 
 	
 	}

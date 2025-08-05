@@ -4,6 +4,7 @@ public class DropDownDTO {
 	private Long id;
 	private String name;
 	private String availableQuantity;
+	private String uom;
 
 	public Long getId() {
 		return id;
@@ -23,10 +24,16 @@ public class DropDownDTO {
 	public void setAvailableQuantity(String availableQuantity) {
 		this.availableQuantity = availableQuantity;
 	}
+	public String getUom() {
+		return uom;
+	}
+	public void setUom(String uom) {
+		this.uom = uom;
+	}
 	@Override
 	public String toString() {
-		return "DropDownDTO [id=" + id + ", name=" + name + ", availableQuantity=" + availableQuantity + "]";
+		return "DropDownDTO [id=" + id + ", name=" + name + ", availableQuantity=" + availableQuantity + ", uom=" + uom
+				+ "]";
 	}
-	
 	
 }

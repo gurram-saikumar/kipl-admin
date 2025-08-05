@@ -114,6 +114,9 @@ public class UserMaster  extends BaseEntity {
 
 	@Column(name = "OPT_IN_WHATSAPP")
 	private Boolean optInWhatsApp;
+	
+	@Column(name = "PASS_CODE")
+	private String passcode;
 
 	public String getName() {
 		return name;
@@ -337,6 +340,27 @@ public class UserMaster  extends BaseEntity {
 
 	public void setOptInWhatsApp(Boolean optInWhatsApp) {
 		this.optInWhatsApp = optInWhatsApp;
+	}
+
+	public String getPasscode() {
+		return passcode;
+	}
+
+	public void setPasscode(String passcode) {
+		this.passcode = passcode;
+	}
+
+	@Override
+	public String toString() {
+		return "UserMaster [name=" + name + ", password=" + password + ", role=" + role + ", roleName=" + roleName
+				+ ", mobileNumber=" + mobileNumber + ", dateOfBirth=" + dateOfBirth + ", emailId=" + emailId
+				+ ", gender=" + gender + ", deviceId=" + deviceId + ", deviceType=" + deviceType + ", deviceToken="
+				+ deviceToken + ", fcmToken=" + fcmToken + ", profilePicUrl=" + profilePicUrl + ", stateName="
+				+ stateName + ", districtName=" + districtName + ", countryName=" + countryName + ", location="
+				+ location + ", employeeId=" + employeeId + ", loginId=" + loginId + ", address=" + address
+				+ ", village=" + village + ", block=" + block + ", pinCode=" + pinCode + ", landMark=" + landMark
+				+ ", city=" + city + ", alternativeMobileNumber=" + alternativeMobileNumber + ", remarks=" + remarks
+				+ ", optInWhatsApp=" + optInWhatsApp + ", passcode=" + passcode + "]";
 	}
 	
 	

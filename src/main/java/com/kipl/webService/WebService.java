@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.kipl.common.FileUtils;
 import com.kipl.common.HibernateDao;
+import com.kipl.dto.BOMDto;
 import com.kipl.dto.DropDownDTO;
 import com.kipl.dto.MaterialDto;
 import com.kipl.dto.MaterialRequestDto;
@@ -42,30 +44,42 @@ import com.kipl.dto.MaterialRequestListDto;
 import com.kipl.dto.ResponseDTO;
 import com.kipl.dto.SubMenuControllerDTO;
 import com.kipl.dto.UserInfoDto;
+import com.kipl.manager.BillOfMaterialMasterManager;
+import com.kipl.manager.ColourMasterManager;
 import com.kipl.manager.CompanyProjectMasterManager;
+import com.kipl.manager.GradeMasterManager;
 import com.kipl.manager.InventoryMasterManager;
 import com.kipl.manager.InventoryHistoryManager;
 import com.kipl.manager.IssueMaterialRequestMasterManager;
 import com.kipl.manager.MaterialMasterManager;
 import com.kipl.manager.MaterialRequestHistoryManager;
 import com.kipl.manager.MaterialRequestManager;
+import com.kipl.manager.MaterialStatusMasterManager;
 import com.kipl.manager.MenuMasterManager;
+import com.kipl.manager.RMMasterManager;
 import com.kipl.manager.ReMappingHistoryManager;
 import com.kipl.manager.RoleMasterManager;
+import com.kipl.manager.SegmentMasterManager;
 import com.kipl.manager.SqlQueryManager;
 import com.kipl.manager.SubMenuMasterManager;
 import com.kipl.manager.UserMasterManager;
 import com.kipl.manager.UserMenuMappingManager;
+import com.kipl.models.BillOfMaterialMaster;
+import com.kipl.models.ColourMaster;
 import com.kipl.models.CompanyProjectMaster;
+import com.kipl.models.GradeMaster;
 import com.kipl.models.InventoryHistory;
 import com.kipl.models.InventoryMaster;
 import com.kipl.models.IssueMaterialRequestMaster;
 import com.kipl.models.MaterialMaster;
 import com.kipl.models.MaterialRequestHistory;
 import com.kipl.models.MaterialRequestMaster;
+import com.kipl.models.MaterialStatusMaster;
 import com.kipl.models.MenuMaster;
+import com.kipl.models.RMMaster;
 import com.kipl.models.ReMappingHistory;
 import com.kipl.models.RoleMaster;
+import com.kipl.models.SegmentMaster;
 import com.kipl.models.SubMenuMaster;
 import com.kipl.models.UserMaster;
 import com.kipl.models.UserMenuMappingEntity;
@@ -74,6 +88,7 @@ import com.kipl.utils.ExcelUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.json.Json;
 import com.google.gson.JsonObject;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -120,6 +135,14 @@ public class WebService {
 	@Autowired private InventoryMasterManager inventoryMasterManager;
 	@Autowired private IssueMaterialRequestMasterManager issueMaterialRequestMasterManager;
 	@Autowired private InventoryHistoryManager inventoryHistoryManager;
+	@Autowired private BillOfMaterialMasterManager billOfMaterialMasterManager;
+	
+	@Autowired private RMMasterManager rmMasterManager;
+	@Autowired private GradeMasterManager gradeMasterManager;
+	@Autowired private SegmentMasterManager segmentMasterManager;
+	@Autowired private ColourMasterManager colourMasterManager;
+	@Autowired private MaterialStatusMasterManager materialStatusMasterManager;
+
 
 
 	private static final Logger LOG = LogManager.getLogger(WebService.class);
@@ -1032,7 +1055,7 @@ public class WebService {
 		return response;
 	}
 
-	public ResponseDTO getMenuControlesForPortal(ResponseDTO response, String jsonData) {
+	public ResponseDTO getMenuControlesForPortal_Old(ResponseDTO response, String jsonData) {
 		try {
 			JSONObject json = new JSONObject(jsonData);
 			String type = json.getString("type");
@@ -1078,6 +1101,70 @@ public class WebService {
 
 							if (subMenuList.length() > 0) {
 								page.put("subItems", subMenuList);
+							}
+						}
+					}
+					if (menuDto.length() > 0) {
+						menuList.put(menuDto);
+					}
+				}
+			}
+
+			response.setResponse(JSONValue.parse(menuList.toString()));
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+			response.setMessage(appConfig.getProperty("SUCCESS"));
+
+		} catch (Exception e) {
+			LOG.info("getMenuControles==> " + e.getStackTrace(), e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+		}
+		return response;
+	}
+	
+	public ResponseDTO getMenuControlesForPortal(ResponseDTO response, String jsonData) {
+		try {
+			JSONObject json = new JSONObject(jsonData);
+			String type = json.getString("type");
+			Long roleId = json.getLong("roleId");
+
+			JSONArray menuList = new JSONArray();
+			List<MenuMaster> menuMasterList = menuMasterManager.getMenuListbasedOnType(type);
+
+			if (menuMasterList != null) {
+				for (MenuMaster menuMaster : menuMasterList) {
+					UserMenuMappingEntity menuData = userMenuMappingManager.getUserMenuByRoleIdAndMainMenuId(roleId,menuMaster.getId());
+					JSONObject menuDto = new JSONObject();
+				
+					if (menuData != null) {
+						menuDto.put("name", menuMaster.getName());
+						menuDto.put("path", menuMaster.getPath());
+						menuDto.put("icon", menuMaster.getIcon());
+						List<SubMenuMaster> subMenuMasterList = subMenuMasterManager
+								.getSubMenuListBasedOnManuId(menuMaster.getId());
+
+						if (subMenuMasterList != null && !subMenuMasterList.isEmpty()) {
+							JSONArray subMenuList = new JSONArray();
+
+							for (SubMenuMaster subMenuMaster : subMenuMasterList) {
+								UserMenuMappingEntity subMenuData = userMenuMappingManager
+										.getUserMenuByRoleIdAndSubMenuId(roleId, subMenuMaster.getId());
+								JSONObject subMenuDTO = new JSONObject();
+
+								if (subMenuData != null) {
+									subMenuDTO.put("icon",
+											appConfig.getProperty("APPLICATION_URL") + subMenuMaster.getIcon() != null
+													? appConfig.getProperty("APPLICATION_URL") + subMenuMaster.getIcon()
+													: "");
+									subMenuDTO.put("name",
+											subMenuMaster.getTitle() != null ? subMenuMaster.getTitle() : "");
+									subMenuDTO.put("path", subMenuMaster.getPath());
+									subMenuList.put(subMenuDTO);
+								}
+							}
+
+							if (subMenuList.length() > 0) {
+								menuDto.put("children", subMenuList);
 							}
 						}
 					}
@@ -1691,7 +1778,11 @@ public class WebService {
 		try {
 			List<MaterialMaster> materials = materialMasterManager.getAllActiveMaterials();
 			List<CompanyProjectMaster> projects = companyProjectMasterManager.getAllActiveProjects();
-
+			List<RMMaster> rmSizes = rmMasterManager.getActiveRMMasterList();
+			List<SegmentMaster> segments = segmentMasterManager.getActiveSegmentMasterList();
+			List<GradeMaster> grades = gradeMasterManager.getActiveGradeMasterList();
+			List<ColourMaster> colours = colourMasterManager.getActiveColourMasterList();
+			List<MaterialStatusMaster> status = materialStatusMasterManager.getMaterialStatusList();
 			
 			List<DropDownDTO> materialList = new ArrayList<>();
 			if(materials!=null && materials.size() >0) {
@@ -1702,6 +1793,7 @@ public class WebService {
 					dto.setName(material.getRmSize()+" ("+material.getSegment()+")");
 					Double availableQuantity=inventoryMasterManager.getInventoryAvailableQunatityBasedonMaterialId(material.getId().toString());
 					dto.setAvailableQuantity(availableQuantity.toString());
+					dto.setUom(material.getUom());
 					materialList.add(dto);
 				}
 			}
@@ -1717,9 +1809,73 @@ public class WebService {
 				}
 			}
 			
+			List<DropDownDTO> rmList = new ArrayList<>();
+			if(rmSizes!=null && rmSizes.size() >0) {
+				LOG.info("rmList===>");
+				for (RMMaster rm : rmSizes) {
+					DropDownDTO dto = new DropDownDTO();
+					dto.setId(rm.getId());
+					dto.setName(rm.getRmSize());
+					rmList.add(dto);
+				}
+			}
+			
+			List<DropDownDTO> gradeList = new ArrayList<>();
+			if(grades!=null && grades.size() >0) {
+				LOG.info("gradeList===>");
+				for (GradeMaster grade : grades) {
+					DropDownDTO dto = new DropDownDTO();
+					dto.setId(grade.getId());
+					dto.setName(grade.getGrade());
+					gradeList.add(dto);
+				}
+			}
+			
+		
+			
+			
+			List<DropDownDTO> segmentList = new ArrayList<>();
+			if(segments!=null && segments.size() >0) {
+				LOG.info("segmentList===>");
+				for (SegmentMaster segment : segments) {
+					DropDownDTO dto = new DropDownDTO();
+					dto.setId(segment.getId());
+					dto.setName(segment.getSegment());
+					segmentList.add(dto);
+				}
+			}
+			
+			List<DropDownDTO> colourList = new ArrayList<>();
+			if(colours!=null && colours.size() >0) {
+				LOG.info("colourList===>");
+				for (ColourMaster colour : colours) {
+					DropDownDTO dto = new DropDownDTO();
+					dto.setId(colour.getId());
+					dto.setName(colour.getColour());
+					colourList.add(dto);
+				}
+			}
+			
+			List<DropDownDTO> materialStatusList = new ArrayList<>();
+			if(status!=null && status.size() >0) {
+				LOG.info("gradeList===>");
+				for (MaterialStatusMaster grade : status) {
+					DropDownDTO dto = new DropDownDTO();
+					dto.setId(grade.getId());
+					dto.setName(grade.getName());
+					materialStatusList.add(dto);
+				}
+			}
+			
+			
 			JSONObject json = new JSONObject();
 			json.put("materialList", materialList);
 			json.put("projectList", projectList);
+			json.put("rmSizeList", rmList);
+			json.put("gradeList", gradeList);
+			json.put("segmentList", segmentList);
+			json.put("colourList", colourList);
+			json.put("materialStatusList", materialStatusList);
 
 			
 			resp.put("statusCode", appConfig.getProperty("SUCCESS_CODE"));
@@ -1784,6 +1940,8 @@ public class WebService {
 							for(MaterialRequestHistory reqHist: history)
 							{
 								Double issuedQuantity=issueMaterialRequestMasterManager.getIssuedQuantityBasedonMaterialRequestHistoryId(reqHist.getId());
+								Double issuedWeight=issueMaterialRequestMasterManager.getIssuedWeightBasedonMaterialRequestHistoryId(reqHist.getId());
+
 								MaterialRequestListDto reqdto=new MaterialRequestListDto();
 								reqdto.setMaterialRequestHistoryId(reqHist.getId());
 								reqdto.setMaterialId(reqHist.getMaterialId().getId());
@@ -1795,7 +1953,8 @@ public class WebService {
 								reqdto.setTotalOrderValue(reqHist.getTotalOrderValue());
 								reqdto.setProjectName(reqHist.getProjectId().getProjectName());
 								reqdto.setRequiredWeight(reqHist.getRequiredWeight());
-								if(issuedQuantity>0)
+								LOG.info("Required Weight "+reqHist.getRequiredWeight());
+								if(issuedQuantity<=0)
 								{
 									reqdto.setRequestStatus("Pending");
 								} else if(reqHist.getRequiredQuantity().compareTo(issuedQuantity)==0) {
@@ -1803,7 +1962,11 @@ public class WebService {
 								} else {
 									reqdto.setRequestStatus("Patial Completed");
 								}
+								//reqdto.setRequestStatus(reqHist.getRequestStatus());
 								reqdto.setIssuedQuantity(issuedQuantity);
+								reqdto.setIssuedWeight(issuedWeight);
+								reqdto.setRequestedDate(reqHist.getCreatedOn().toString());
+								reqdto.setIssuedDate(userId);
 								reqListDto.add(reqdto);
 							}
 							dto.setMaterialRequestList(reqListDto);
@@ -1863,14 +2026,19 @@ public class WebService {
 						if(inv!=null)
 						{
 							inv.setAvailableQuantity(inv.getAvailableQuantity()-issue.getIssuedQuantity());
-							inv.setWeight((inv.getWeight())-issue.getIssuedWeight());
+							inv.setAvailableWeight(inv.getAvailableWeight()-issue.getIssuedWeight());
 							inventoryMasterManager.mergeSaveOrUpdate(inv);
 
-							if(jsonRequest.getIssuedQuantity()+issuedQuantity.compareTo(materialRequestHistory.getRequiredQuantity())==0)
+							if((jsonRequest.getIssuedQuantity()+issuedQuantity)==(materialRequestHistory.getRequiredQuantity()))
 							{
 								issue.setIssueStatus("Completed");
+							} else if((jsonRequest.getIssuedQuantity()+issuedQuantity)>(materialRequestHistory.getRequiredQuantity()))
+							{
+								response.setStatusCode(202);
+								response.setMessage("Please check Issued Quantity is More than Required Quantity.");
+								return response;
 							} else {
-								issue.setIssueStatus("Patial Completed");
+								issue.setIssueStatus("Partial Completed");
 							}
 							materialRequest.setRequestStatus(issue.getIssueStatus());
 							materialRequest.setModifiedOn(DateUtils.getCurrentSystemTimestamp());
@@ -1915,11 +2083,14 @@ public class WebService {
 			UserMaster user=userMasterManager.get(Long.parseLong(userId));
 			List<MaterialRequestDto> issuedList= new ArrayList<>();
 			List<MaterialRequestListDto> reqListDto=new ArrayList<>();
+			List<IssueMaterialRequestMaster> issueList=null;
 
 			if(user!=null)
 			{
-				
-				List<IssueMaterialRequestMaster> issueList=issueMaterialRequestMasterManager.getIssueMaterialListBasedonIssuerId(user.getId());
+				if(user.getRole().getId()==1 || user.getRole().getId()==1)
+					issueList=issueMaterialRequestMasterManager.getIssueMaterialList();
+				else
+					issueList=issueMaterialRequestMasterManager.getIssueMaterialListBasedonIssuerId(user.getId());
 				for(IssueMaterialRequestMaster list:issueList)
 				{
 					MaterialRequestDto dto=new MaterialRequestDto();
@@ -1943,7 +2114,10 @@ public class WebService {
 					reqdto.setProjectName(list.getMaterialRequestHistoryId().getProjectId().getProjectName());
 					reqdto.setIssuerName(list.getIssuerId().getName());
 					reqdto.setRequestStatus(list.getIssueStatus());
+					reqdto.setRequiredWeight(list.getMaterialRequestHistoryId().getRequiredWeight());
 					reqdto.setIssuedQuantity(list.getIssuedQuantity());
+					reqdto.setIssuedWeight(list.getIssuedWeight()!=null?list.getIssuedWeight():0.00);
+					reqdto.setIssuedDate(list.getIssuedDate().toString());
 					reqListDto.add(reqdto);
 					dto.setMaterialRequestList(reqListDto);
 					issuedList.add(dto);
@@ -2015,13 +2189,33 @@ public class WebService {
 			//Double materialCount=materialMasterManager.getMaterialCount();
 			//Double availableMaterialWeight=materialMasterManager.getAvailableMaterialWeight();
 			//Long shortAgeMeterialCount=materialMasterManager.getShortAgeMeterialCount();
-			Long materialRequestCount=materialRequestManager.getMaterialRequestCount(user.getId());
-			Long materialPendingCount=materialRequestManager.getMaterialPendingCount(user.getId());
-			Long materialIssuedCount=materialRequestManager.getMaterialIssuedCount(user.getId());
-			Long materialRequestCompletedCount=materialRequestManager.getMaterialRequestCompletedCount(user.getId());
+			Long materialRequestCount=materialRequestManager.getMaterialRequestCount(user.getId(),user.getRole().getId());
+			Long materialPendingCount=materialRequestManager.getMaterialPendingCount(user.getId(),user.getRole().getId());
+			Long materialIssuedCount=materialRequestManager.getMaterialIssuedCount(user.getId(),user.getRole().getId());
+			Long materialRequestCompletedCount=materialRequestManager.getMaterialRequestCompletedCount(user.getId(),user.getRole().getId());
+			Double totalWeight=inventoryMasterManager.getInventoryTotalWeight();
+			Double availableWeight=inventoryMasterManager.getInventoryAvailableWeight();
+			List<MaterialDto> segmentList=sqlQueryManager.getInventoryCountBasedOnSegments();
 
+			DecimalFormat df = new DecimalFormat("#.##");
+			String totalWeight1 = df.format(totalWeight);
+			String availableWeight1 = df.format(availableWeight);
 
-			
+	        List<JSONObject> segments = new ArrayList<>();
+
+			if(segmentList!=null)
+			{
+				for(MaterialDto segment:segmentList)
+				{
+					JSONObject segmentJson = new JSONObject();
+					segmentJson.put("segment", segment.getSegment());
+					segmentJson.put("totalStock", segment.getTotalWeight());
+					segmentJson.put("issuedStock", segment.getTotalWeight()-segment.getAvailableWeight());
+					segmentJson.put("availableStock", segment.getAvailableWeight());
+					segments.add(segmentJson);
+
+				}
+			}
 			JSONObject json = new JSONObject();
 		
 			JSONObject mqjson = new JSONObject();
@@ -2032,7 +2226,7 @@ public class WebService {
 			JSONObject ivjson = new JSONObject();
 			ivjson.put("icon","/assets/images/issue_voucher.png");
 			ivjson.put("title","Issued Vouchers");
-			ivjson.put("value",materialIssuedCount);
+			ivjson.put("value",materialRequestCompletedCount);
 			
 			JSONObject pcjson = new JSONObject();
 			pcjson.put("icon","/assets/images/pending.png");
@@ -2041,56 +2235,95 @@ public class WebService {
 			
 			JSONObject crjson = new JSONObject();
 			crjson.put("icon","/assets/images/closed.png");
-			crjson.put("title","Closed Requests");
-			crjson.put("value",materialRequestCompletedCount);
+			crjson.put("title","Patial Completed Requests");
+			crjson.put("value",materialIssuedCount);
+			
+			JSONObject rmjson = new JSONObject();
+			rmjson.put("icon","/assets/images/closed.png");
+			rmjson.put("title","Raw Material");
+			rmjson.put("value",totalWeight);
+			
+			JSONObject wipjson = new JSONObject();
+			wipjson.put("icon","/assets/images/closed.png");
+			wipjson.put("title","Work in Progress");
+			wipjson.put("value",0);
+			
+			JSONObject fgwithOutPaintjson = new JSONObject();
+			fgwithOutPaintjson.put("icon","/assets/images/closed.png");
+			fgwithOutPaintjson.put("title","FG-Without Painting");
+			fgwithOutPaintjson.put("value",0);
+			
+			JSONObject fgwithPaintjson = new JSONObject();
+			fgwithPaintjson.put("icon","/assets/images/closed.png");
+			fgwithPaintjson.put("title","FG-With painting");
+			fgwithPaintjson.put("value",0);
+			
+			JSONObject dropJson = new JSONObject();
+			dropJson.put("icon","/assets/images/closed.png");
+			dropJson.put("title","Drops");
+			dropJson.put("value",0);
+			
+			JSONObject scrapAndDispatchjson = new JSONObject();
+			scrapAndDispatchjson.put("icon","/assets/images/closed.png");
+			scrapAndDispatchjson.put("title","Scap and Diaptch");
+			scrapAndDispatchjson.put("value",0);
 			
 			List<JSONObject> jsonList = new ArrayList<>();
 			jsonList.add(mqjson);
 			jsonList.add(ivjson);
 			jsonList.add(pcjson);
 			jsonList.add(crjson);
+			jsonList.add(rmjson);
+			jsonList.add(wipjson);
+			jsonList.add(fgwithOutPaintjson);
+			jsonList.add(fgwithPaintjson);
+			jsonList.add(dropJson);
+			jsonList.add(scrapAndDispatchjson);
+
 			
 			 JSONArray downCards = new JSONArray();
 
 		        downCards.put(createCard(
 		            "Material Requisition & Issue Management",
 		            "AssignmentIcon",
-		            new String[][] {{"Overall Stats", "1525"}, {"Issue Status", "329"}},
+		            new String[][] {{"Total Request", materialRequestCount.toString()}, {"Issued Requests", materialRequestCompletedCount.toString()}},
 		            "linear-gradient(90deg, #00a86b 0%, #008f5b 100%)"
 		        ));
 
 		        downCards.put(createCard(
 		            "Stock Management",
 		            "InventoryIcon",
-		            new String[][] {{"Accepted Requests", "2565"}, {"Pending Requests", "140"}},
+		            new String[][] {{"Total Weight", totalWeight1}, {"Issued Weight", availableWeight1}},
 		            "linear-gradient(90deg, #ff3e8e 0%, #e91e63 100%)"
 		        ));
 
-		        downCards.put(createCard(
-		            "Unit-Specific Material Allocation",
-		            "AccountTreeIcon",
-		            new String[][] {{"Accepted Requests", "16500"}, {"Pending Requests", "220"}},
-		            "linear-gradient(90deg, #006d5b 0%, #00594b 100%)"
-		        ));
-
-		        downCards.put(createCard(
-		            "Reports",
-		            "AssessmentIcon",
-		            new String[][] {{"Overall Users", "20000"}, {"Productive Users", "6000"}},
-		            "linear-gradient(90deg, #9c27b0 0%, #7b1fa2 100%)"
-		        ));
-
-		        downCards.put(createCard(
-		            "Quality Assurance Integration",
-		            "VerifiedIcon",
-		            new String[][] {{"Accepted Requests", "3850"}, {"Pending Requests", "290"}},
-		            "linear-gradient(90deg, #303f9f 0%, #1a237e 100%)"
-		        ));
+//		        downCards.put(createCard(
+//		            "Unit-Specific Material Allocation",
+//		            "AccountTreeIcon",
+//		            new String[][] {{"Accepted Requests", "16500"}, {"Pending Requests", "220"}},
+//		            "linear-gradient(90deg, #006d5b 0%, #00594b 100%)"
+//		        ));
+//
+//		        downCards.put(createCard(
+//		            "Reports",
+//		            "AssessmentIcon",
+//		            new String[][] {{"Overall Users", "20000"}, {"Productive Users", "6000"}},
+//		            "linear-gradient(90deg, #9c27b0 0%, #7b1fa2 100%)"
+//		        ));
+//
+//		        downCards.put(createCard(
+//		            "Quality Assurance Integration",
+//		            "VerifiedIcon",
+//		            new String[][] {{"Accepted Requests", "3850"}, {"Pending Requests", "290"}},
+//		            "linear-gradient(90deg, #303f9f 0%, #1a237e 100%)"
+//		        ));
 		        
 		        
 			
 			json.put("topCards",jsonList);
 			json.put("downCards", downCards);
+			json.put("segmentData", segments);
+
 
 			resp.put("statusCode", appConfig.getProperty("SUCCESS_CODE"));
 			resp.put("message", appConfig.getProperty("SUCCESS"));
@@ -2192,7 +2425,11 @@ public class WebService {
 				inventory.setAvailableQuantity(inventory.getAvailableQuantity()+inventoryDto.getQuantity());
 				inventory.setTotalQuantity(inventory.getTotalQuantity()+inventoryDto.getQuantity());
 				inventory.setModifiedOn(DateUtils.getCurrentSystemTimestamp());
+				inventory.setTotalWeight(inventory.getTotalWeight()+inventoryDto.getWeight());
+				inventory.setAvailableWeight(inventory.getAvailableWeight()+inventoryDto.getWeight());
 				inventoryMasterManager.mergeSaveOrUpdate(inventory);
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+				response.setMessage("Inventory Updated ");
 			} else {
 				inventory=new InventoryMaster();
 				inventory.setStatus(true);
@@ -2206,7 +2443,8 @@ public class WebService {
 				inventory.setCustomer(inventoryDto.getCustomer());
 				inventory.setLength(inventoryDto.getLength());
 				inventory.setLocation(inventoryDto.getLocation());
-				inventory.setWeight(inventoryDto.getWeight());
+				inventory.setAvailableWeight(inventoryDto.getWeight());
+				inventory.setTotalWeight(inventoryDto.getWeight());
 				inventory.setWidth(inventoryDto.getWidth());
 				inventory.setMaterialDescrption(inventoryDto.getMaterialDescrption());
 				inventory.setMaterialCode(inventoryDto.getMaterialCode());
@@ -2217,7 +2455,11 @@ public class WebService {
 				inventory.setPrice(inventoryDto.getPrice());
 				inventory.setAvailableQuantity(inventoryDto.getQuantity());
 				inventory.setTotalQuantity(inventoryDto.getQuantity());
+				inventory.setTotalWeight(inventory.getTotalWeight()+inventoryDto.getWeight());
+				inventory.setAvailableWeight(inventory.getAvailableWeight()+inventoryDto.getWeight());
 				inventoryMasterManager.mergeSaveOrUpdate(inventory);
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+				response.setMessage("Inventory Added");
 			}
 			
 			InventoryHistory inventoryHistory=new InventoryHistory();
@@ -2252,6 +2494,80 @@ public class WebService {
 			}
 
 			inventoryHistoryManager.mergeSaveOrUpdate(inventoryHistory);
+
+		}
+		} catch (Exception e) {
+			LOG.info("addItemInInventory Exception==> "+e.getStackTrace(),e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
+		return response;
+	}
+
+	public ResponseDTO editInventoryMaster(HttpServletRequest request, String jsonData, ResponseDTO response) {
+
+		try {
+			InventoryMaster inventory =null;
+		MaterialDto inventoryDto = new ObjectMapper().readValue(jsonData, MaterialDto.class);
+		if(inventoryDto!=null)
+		{
+			inventory = inventoryMasterManager.get(inventoryDto.getInventoryMasterId());
+
+			if (inventory != null) {
+				inventory.setAvailableQuantity(inventory.getAvailableQuantity()+inventoryDto.getQuantity());
+				inventory.setTotalQuantity(inventory.getTotalQuantity()+inventoryDto.getQuantity());
+				inventory.setTotalWeight(inventory.getTotalWeight()+inventoryDto.getWeight());
+				inventory.setAvailableWeight(inventory.getAvailableWeight()+inventoryDto.getWeight());
+				inventory.setModifiedOn(DateUtils.getCurrentSystemTimestamp());
+				inventoryMasterManager.mergeSaveOrUpdate(inventory);
+				
+
+				InventoryHistory inventoryHistory=new InventoryHistory();
+				inventoryHistory.setStatus(true);
+				inventoryHistory.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
+				inventoryHistory.setSegment(inventory.getSegment());
+				inventoryHistory.setRmSize(inventory.getRmSize());
+				inventoryHistory.setColour(inventory.getColour());
+				inventoryHistory.setGrade(inventory.getGrade());
+				inventoryHistory.setMpa(inventory.getMpa());
+				inventoryHistory.setSection(inventory.getSection());
+				inventoryHistory.setCustomer(inventory.getCustomer());
+				inventoryHistory.setLength(inventory.getLength());
+				inventoryHistory.setLocation(inventory.getLocation());
+				inventoryHistory.setWeight(inventoryDto.getWeight());
+				inventoryHistory.setWidth(inventory.getWidth());
+				inventoryHistory.setMaterialDescrption(inventory.getMaterialDescrption());
+				inventoryHistory.setMaterialCode(inventory.getMaterialCode());
+				inventoryHistory.setMaterialType(inventory.getMaterialType());
+				inventoryHistory.setUom(inventory.getUom());
+				inventoryHistory.setThick(inventory.getThick());
+				inventoryHistory.setRemarks(inventory.getRemarks());
+				inventoryHistory.setPrice(inventory.getPrice());
+				inventoryHistory.setAvailableQuantity(inventoryDto.getQuantity());
+				inventoryHistory.setTotalQuantity(inventoryDto.getQuantity());
+				inventoryHistory.setInventoryMasterId(inventory);
+				MaterialMaster material = materialMasterManager.getMaterialExistBasedOnFileter(inventoryDto.getRmSize(),
+						inventoryDto.getSegment(), inventoryDto.getGrade(), inventoryDto.getColour());
+				if(material!=null)
+				{
+					inventoryHistory.setMaterialId(material.getId().toString());
+				}
+
+				inventoryHistoryManager.mergeSaveOrUpdate(inventoryHistory);
+				
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+				response.setMessage( appConfig.getProperty("SUCCESS"));
+				ObjectMapper obj=new  ObjectMapper();
+				String jsonResponse = obj.writeValueAsString(inventory);
+
+				response.setResponse(JSONValue.parse(jsonResponse));
+			} else {
+				response.setStatusCode(201);
+				response.setMessage("Invalid Inventory Id");
+				response.setResponse(null);
+			}
+			
 			
 		}
 		} catch (Exception e) {
@@ -2260,6 +2576,164 @@ public class WebService {
 			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
 			response.setResponse(null);
 		}
-		return null;
+		return response;
+	
+	}
+
+	public ResponseDTO getReports(HttpServletRequest request, ResponseDTO response) {
+
+		try {
+			List<MaterialMaster> materials=materialMasterManager.getAllActiveMaterials();
+			ArrayList<MaterialDto> materialList=new ArrayList<>();
+
+			if(materials!=null && materials.size()>0)
+			{
+				for(MaterialMaster material:materials)
+				{
+					MaterialDto dto=new MaterialDto();
+					dto.setSegment(material.getSegment());
+					dto.setGrade(material.getGrade());
+					dto.setMaterialName(material.getRmSize());
+					InventoryMaster inv=inventoryMasterManager.getInventoryListBasedonMaterialId(material.getId().toString());
+					if(inv!=null)
+					{
+						dto.setTotalQuantity(inv.getTotalQuantity());
+						dto.setAvailableQuantity(inv.getAvailableQuantity());
+						dto.setTotalWeight(inv.getTotalWeight());
+						dto.setAvailableWeight(inv.getAvailableWeight());
+						dto.setIssuedQuantity(inv.getTotalQuantity()-inv.getAvailableQuantity());
+						dto.setIssuedWeight(inv.getTotalWeight()-inv.getAvailableWeight());
+						materialList.add(dto);
+					}
+					
+
+				}
+			}
+			JSONObject json = new JSONObject();
+			json.put("data", materialList);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+			response.setMessage( appConfig.getProperty("SUCCESS"));
+			response.setResponse(JSONValue.parse(json.toString()));
+		} catch (Exception e) {
+			LOG.info("getReports Exception==> "+e.getStackTrace(),e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
+		return response;
+	}
+
+	public ResponseDTO getBillOfMaterialList(HttpServletRequest request, ResponseDTO response) {
+		// TODO Auto-generated method stub
+		try {
+			List<BillOfMaterialMaster> billOfMaterialList=billOfMaterialMasterManager.getBillOfMaterialList();
+			ArrayList<BOMDto> bomList=new ArrayList<>();
+			if(billOfMaterialList!=null && billOfMaterialList.size()>0)
+			{
+				for(BillOfMaterialMaster bom:billOfMaterialList)
+				{
+					BOMDto dto= new BOMDto();
+					dto.setProject(bom.getProject());
+					dto.setJobId(bom.getJobId());
+					dto.setAbAndTemplate(bom.getAbAndTemplate());
+					dto.setBuildUp(bom.getBuildUp());
+					dto.setColdForm(bom.getColdForm());
+					dto.setHotRolled(bom.getHotRolled());
+					dto.setMisc(bom.getMisc());
+					dto.setSsrSheeting(bom.getSsrSheeting());
+					dto.setKrRoofSheeting(bom.getKrRoofSheeting());
+					dto.setKrWallSheeting(bom.getKrWallSheeting());
+					dto.setFlashings(bom.getFlashings());
+					dto.setDeckSheet(bom.getDeckSheet());
+					dto.setBuyOuts(bom.getBuyOuts());
+					dto.setTotalWeightInMT(bom.getTotalWeightInMT());
+					dto.setPuffPanelArea(bom.getPuffPanelArea());
+					dto.setRedSheetSurfaceArea(bom.getRedSheetSurfaceArea());
+					bomList.add(dto);
+				}
+			}
+			JSONObject json = new JSONObject();
+			json.put("data", bomList);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+			response.setMessage( appConfig.getProperty("SUCCESS"));
+			response.setResponse(JSONValue.parse(json.toString()));
+		} catch (Exception e) {
+			LOG.info("getBillOfMaterialList Exception==> "+e.getStackTrace(),e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
+		return response;
+	}
+	
+	public ResponseDTO saveMaterialRequestForMobile(HttpServletRequest request, ResponseDTO response, String jsonData) {
+		try {
+		
+			MaterialRequestDto jsonRequest = new ObjectMapper().readValue(jsonData, MaterialRequestDto.class);
+			
+			if(jsonRequest!=null)
+			{
+				MaterialRequestMaster MaterialRequest = generateRequestId();
+	                LOG.info("AFTER MAX VALUE");
+	                Long requestId = 0L;
+	                if (MaterialRequest != null)
+	                {
+	                	 LOG.info("AFTER MAX VALUE"+MaterialRequest.getId());
+	                	 requestId = MaterialRequest.getRequestId() + 1;
+	                }
+	                else requestId = 1000l;
+				
+				//Long requestId=materialRequestManager.getLatestRequestId();
+				MaterialRequestMaster requestM=new MaterialRequestMaster();
+				requestM.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
+				requestM.setProjectId(jsonRequest.getProjectId()!=null?(companyProjectMasterManager.get(jsonRequest.getProjectId())):null);
+				requestM.setProjectName(jsonRequest.getProjectName());
+				requestM.setSerialNumber(jsonRequest.getSerialNumber());
+				requestM.setRequesterId(jsonRequest.getRequesterId()!=null?(userMasterManager.get(jsonRequest.getRequesterId())):null);
+				requestM.setRequiredDate(Timestamp.valueOf(jsonRequest.getRequestedDate()));
+				requestM.setComments(jsonRequest.getRemarks());
+				requestM.setTotalOrderValue(jsonRequest.getTotalOrderValue());
+				requestM.setProductRequiredLocationId(jsonRequest.getProductRequiredLocationId()!=null?jsonRequest.getProductRequiredLocationId():0);
+				requestM.setProductRequiredLocationName(jsonRequest.getProductRequiredLocationName());
+				requestM.setRequestStatus("Submitted");
+				requestM.setStatus(true);
+				requestM.setRequestId(requestId);
+				materialRequestManager.mergeSaveOrUpdate(requestM);
+				
+				for(MaterialRequestListDto dto:jsonRequest.getMaterialRequestList())
+				{
+					MaterialRequestHistory history=new MaterialRequestHistory();
+					history.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
+					history.setMaterialId(dto.getMaterialId()!=null?(materialMasterManager.get(dto.getMaterialId())):null);
+					history.setProjectId(jsonRequest.getProjectId()!=null?(companyProjectMasterManager.get(jsonRequest.getProjectId())):null);
+					history.setRequestId(requestM);
+					history.setRequestLocation(jsonRequest.getProductRequiredLocationName());
+					history.setRequiredDate(Timestamp.valueOf(jsonRequest.getRequiredDate()));
+					history.setRequiredQuantity(dto.getRequiredQuantity());
+					history.setSerialNmuber(jsonRequest.getSerialNumber());
+					history.setStatus(true);
+					history.setTotalOrderValue(jsonRequest.getTotalOrderValue());
+					history.setUom(dto.getUom());
+					history.setRequestStatus("Submitted");
+					history.setRequiredWeight(dto.getRequiredWeight());
+					materialRequestHistoryManager.mergeSaveOrUpdate(history);
+
+				}
+				
+			}
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+            response.setMessage("Data Inserted Successfully");
+           // response.setResponse(JSONValue.parse(resp.toString()));
+		} catch (JsonMappingException e) {
+			LOG.info("saveMaterialRequest JsonMappingException============> " + e.getStackTrace(), e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+		} catch (JsonProcessingException e) {
+			LOG.info(" saveMaterialRequestJsonProcessingException============> " + e.getStackTrace(), e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+		}
+
+		return response;
 	}
 }
