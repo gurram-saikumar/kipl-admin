@@ -1867,6 +1867,59 @@ public class WebService {
 				}
 			}
 			
+			List<DropDownDTO> measurementsList = new ArrayList<>();
+
+			DropDownDTO m1 = new DropDownDTO();
+			m1.setId(1L);
+			m1.setName("Kilograms");
+			m1.setUom("Kg");
+			m1.setAvailableQuantity("");
+			measurementsList.add(m1);
+
+			DropDownDTO m2 = new DropDownDTO();
+			m2.setId(2L);
+			m2.setName("Liters");
+			m2.setUom("L");
+			m2.setAvailableQuantity("");
+			measurementsList.add(m2);
+
+			DropDownDTO m3 = new DropDownDTO();
+			m3.setId(3L);
+			m3.setName("Pieces");
+			m3.setUom("Nos");
+			m3.setAvailableQuantity("");
+			measurementsList.add(m3);
+
+			List<DropDownDTO> productRequiredLocations = new ArrayList<>();
+
+			DropDownDTO l1 = new DropDownDTO();
+			l1.setId(1L);
+			l1.setName("Hyderabad");
+			l1.setUom("");
+			l1.setAvailableQuantity("");
+			productRequiredLocations.add(l1);
+
+			DropDownDTO l2 = new DropDownDTO();
+			l2.setId(2L);
+			l2.setName("Vijayawada");
+			l2.setUom("");
+			l2.setAvailableQuantity("");
+			productRequiredLocations.add(l2);
+
+			DropDownDTO l3 = new DropDownDTO();
+			l3.setId(3L);
+			l3.setName("Nalgonda");
+			l3.setUom("");
+			l3.setAvailableQuantity("");
+			productRequiredLocations.add(l3);
+
+			DropDownDTO l4 = new DropDownDTO();
+			l4.setId(4L);
+			l4.setName("Tirupati");
+			l4.setUom("");
+			l4.setAvailableQuantity("");
+			productRequiredLocations.add(l4);
+
 			
 			JSONObject json = new JSONObject();
 			json.put("materialList", materialList);
@@ -1876,7 +1929,8 @@ public class WebService {
 			json.put("segmentList", segmentList);
 			json.put("colourList", colourList);
 			json.put("materialStatusList", materialStatusList);
-
+			json.put("productRequiredLocationsList", productRequiredLocations);
+			json.put("measurementsList", measurementsList);
 			
 			resp.put("statusCode", appConfig.getProperty("SUCCESS_CODE"));
 			resp.put("message", appConfig.getProperty("SUCCESS"));
@@ -1984,17 +2038,16 @@ public class WebService {
 				response.setResponse(JSONValue.parse(json.toString()));
 				
 				
-			}else {
+			} else {
 				response.setStatusCode(101);
 				response.setMessage("User Doesn't Exist");
 			}
-			
-		}catch (Exception e) {
+		} catch (Exception e) {
 			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
 			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
 			response.setResponse(null);
-
-			}
+			LOG.info("Exception_in_getMaterialRequest=====>" + e.getStackTrace()+"_"+e.getMessage()+"_"+e.getLocalizedMessage());
+		}
 		return response;
 	}
 
@@ -2041,6 +2094,8 @@ public class WebService {
 								issue.setIssueStatus("Partial Completed");
 							}
 							materialRequest.setRequestStatus(issue.getIssueStatus());
+							materialRequest.setIssuedRemarks(jsonRequest.getIssuedRemarks());
+							materialRequest.setIssuedDate(DateUtils.getCurrentSystemTimestamp());
 							materialRequest.setModifiedOn(DateUtils.getCurrentSystemTimestamp());
 							materialRequestManager.mergeSaveOrUpdate(materialRequest);
 							issueMaterialRequestMasterManager.mergeSaveOrUpdate(issue);
@@ -2698,6 +2753,7 @@ public class WebService {
 				requestM.setRequestStatus("Submitted");
 				requestM.setStatus(true);
 				requestM.setRequestId(requestId);
+				requestM.setRequesterRemarks(jsonRequest.getRequesterRemarks());
 				materialRequestManager.mergeSaveOrUpdate(requestM);
 				
 				for(MaterialRequestListDto dto:jsonRequest.getMaterialRequestList())
@@ -2736,4 +2792,244 @@ public class WebService {
 
 		return response;
 	}
+
+//	public ResponseDTO getMaterialRequestForMobile(HttpServletRequest request, ResponseDTO response, String jsonData) {
+//		try {
+//			LOG.info("getMaterialRequest service");
+//			String userId = request.getHeader("userId");
+//			
+//			JSONObject jsonRequest = new JSONObject(jsonData);
+//			Long projectId = jsonRequest.optLong("projectId",0l);
+//			String moduleType  = jsonRequest.getString("moduleType");
+//
+//			UserMaster user = userMasterManager.get(Long.parseLong(userId));
+//			if (user != null) {
+//				LOG.info("User Exist");
+//
+//				List<MaterialRequestDto> materiallist = new ArrayList<>();
+//				List<MaterialRequestMaster> requestList = materialRequestManager.getMaterialRequestListForMobile(user,projectId);
+//				if (requestList != null && requestList.size() > 0) {
+//					for (MaterialRequestMaster materialRequest : requestList) {
+//						MaterialRequestDto dto = new MaterialRequestDto();
+//						dto.setMaterialRequestId(materialRequest.getId());
+//						dto.setRequestId(materialRequest.getRequestId());
+//						dto.setProjectId(materialRequest.getProjectId().getId());
+//						dto.setSerialNumber(materialRequest.getSerialNumber());
+//						dto.setRequesterId(materialRequest.getRequesterId().getId());
+//						dto.setRequesterName(materialRequest.getRequesterId().getName());
+//						List<MaterialRequestHistory> history = materialRequestHistoryManager.getMaterialRequestHistoryBasedonId(materialRequest);
+//						if (history != null) {
+//							List<MaterialRequestListDto> reqListDto = new ArrayList<>();
+//
+//							for (MaterialRequestHistory reqHist : history) {
+//								Double issuedQuantity = issueMaterialRequestMasterManager.getIssuedQuantityBasedonMaterialRequestHistoryId(reqHist.getId());
+//								Double issuedWeight = issueMaterialRequestMasterManager.getIssuedWeightBasedonMaterialRequestHistoryId(reqHist.getId());
+//
+//								MaterialRequestListDto reqdto = new MaterialRequestListDto();
+//								reqdto.setMaterialRequestHistoryId(reqHist.getId());
+//								reqdto.setMaterialId(reqHist.getMaterialId().getId());
+//								reqdto.setMaterialName(reqHist.getMaterialId().getRmSize() + " ("+ reqHist.getMaterialId().getSegment() + ")");
+//								reqdto.setProductRequiredLocation(reqHist.getRequestLocation());
+//								reqdto.setProjectId(reqHist.getProjectId().getId());
+//								reqdto.setRequiredDate(reqHist.getRequiredDate().toString());
+//								reqdto.setRequiredQuantity(reqHist.getRequiredQuantity());
+//								reqdto.setTotalOrderValue(reqHist.getTotalOrderValue());
+//								reqdto.setProjectName(reqHist.getProjectId().getProjectName());
+//								reqdto.setRequiredWeight(reqHist.getRequiredWeight());
+//								LOG.info("Required Weight " + reqHist.getRequiredWeight());
+//								if (issuedQuantity <= 0) {
+//									reqdto.setRequestStatus("Pending");
+//								} else if (reqHist.getRequiredQuantity().compareTo(issuedQuantity) == 0) {
+//									reqdto.setRequestStatus("Completed");
+//								} else {
+//									reqdto.setRequestStatus("Patial Completed");
+//								}
+//								reqdto.setIssuedQuantity(issuedQuantity);
+//								reqdto.setIssuedWeight(issuedWeight);
+//								reqdto.setRequestedDate(reqHist.getCreatedOn().toString());
+//								reqdto.setIssuedDate(userId);
+//								reqListDto.add(reqdto);
+//							}
+//							dto.setMaterialRequestList(reqListDto);
+//						}
+//						materiallist.add(dto);
+//					}
+//				}
+//				JSONObject json = new JSONObject();
+//				json.put("materialList", materiallist);
+//				response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+//				response.setMessage(appConfig.getProperty("SUCCESS"));
+//				response.setResponse(JSONValue.parse(json.toString()));
+//			} else {
+//				response.setStatusCode(101);
+//				response.setMessage("User Doesn't Exist");
+//			}
+//		} catch (Exception e) {
+//			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+//			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+//			response.setResponse(null);
+//			LOG.info("Exception_in_getMaterialRequestForMobile=====>" + e.getStackTrace() + "_" + e.getMessage() + "_"+ e.getLocalizedMessage());
+//		}
+//		return response;
+//	}
+	
+	public ResponseDTO getMaterialRequestForMobile_v2(HttpServletRequest request, ResponseDTO response, String jsonData) {
+	    try {
+	        LOG.info("getMaterialRequest service");
+	        String userId = request.getHeader("userId");
+
+	        JSONObject jsonRequest = new JSONObject(jsonData);
+	        Long projectId = jsonRequest.optLong("projectId", 0L);
+	        String moduleType = jsonRequest.getString("moduleType");
+
+	        UserMaster user = userMasterManager.get(Long.parseLong(userId));
+	        if (user != null) {
+	            LOG.info("User Exist");
+
+	            List<JSONObject> responseList = new ArrayList<>();
+	            List<MaterialRequestMaster> requestList = materialRequestManager.getMaterialRequestListForMobile(user, projectId);
+
+	            if (requestList != null && !requestList.isEmpty()) {
+	                for (MaterialRequestMaster materialRequest : requestList) {
+
+	                    JSONObject reqJson = new JSONObject();
+	                    reqJson.put("materialRequestId", materialRequest.getId());
+	                    reqJson.put("projectId", materialRequest.getProjectId().getId());
+	                    reqJson.put("projectName", materialRequest.getProjectId().getProjectName());
+	                    reqJson.put("serialNumber", materialRequest.getSerialNumber());
+	                    reqJson.put("requesterId", materialRequest.getRequesterId().getId());
+	                    reqJson.put("requesterName", materialRequest.getRequesterId().getName());
+	                    reqJson.put("requestedDate", materialRequest.getCreatedOn().toString());
+
+	                    List<MaterialRequestHistory> history = materialRequestHistoryManager.getMaterialRequestHistoryBasedonId(materialRequest);
+	                    List<JSONObject> reqListDto = new ArrayList<>();
+	                    Double totalOrderValue = 0.0;
+
+	                    if (history != null) {
+	                        for (MaterialRequestHistory reqHist : history) {
+	                            Double issuedQuantity = issueMaterialRequestMasterManager.getIssuedQuantityBasedonMaterialRequestHistoryId(reqHist.getId());
+	                            Double issuedWeight = issueMaterialRequestMasterManager.getIssuedWeightBasedonMaterialRequestHistoryId(reqHist.getId());
+
+	                            JSONObject reqdto = new JSONObject();
+	                            reqdto.put("materialRequestHistoryId", reqHist.getId());
+	                            reqdto.put("materialId", reqHist.getMaterialId().getId());
+	                            reqdto.put("materialName", reqHist.getMaterialId().getRmSize() + " (" + reqHist.getMaterialId().getSegment() + ")");
+	                            reqdto.put("requiredQuantity", reqHist.getRequiredQuantity());
+	                            reqdto.put("requiredWeight", reqHist.getRequiredWeight());
+	                            reqdto.put("uom", reqHist.getMaterialId().getUom());
+	                            reqListDto.add(reqdto);
+
+	                            totalOrderValue += reqHist.getTotalOrderValue();
+
+	                            // top-level fields (example, you may refine)
+	                            reqJson.put("productRequiredLocation", reqHist.getRequestLocation());
+	                            reqJson.put("requiredDate", reqHist.getRequiredDate().toString());
+	                            reqJson.put("issuedQuantity", issuedQuantity);
+	                            reqJson.put("issuedWeight", issuedWeight);
+
+	                            if (issuedQuantity <= 0) {
+	                                reqJson.put("status", "Pending");
+	                            } else if (reqHist.getRequiredQuantity().compareTo(issuedQuantity) == 0) {
+	                                reqJson.put("status", "Completed");
+	                            } else {
+	                                reqJson.put("status", "Partial Completed");
+	                            }
+	                            reqJson.put("issuedDate", materialRequest.getIssuedDate());
+	                            reqJson.put("issuedRemarks", materialRequest.getIssuedRemarks());
+	                            reqJson.put("requesterRemarks", materialRequest.getRequesterRemarks());
+	                        }
+	                    }
+	                    reqJson.put("materialRequestList", reqListDto);
+	                    reqJson.put("totalOrderValue", totalOrderValue);
+	                    responseList.add(reqJson);
+	                }
+	            }
+	            response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+	            response.setMessage(appConfig.getProperty("SUCCESS"));
+	            response.setResponse(JSONValue.parse(responseList.toString()));
+	        } else {
+	            response.setStatusCode(101);
+	            response.setMessage("User Doesn't Exist");
+	        }
+	    } catch (Exception e) {
+	        response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+	        response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+	        response.setResponse(null);
+	        LOG.info("Exception_in_getMaterialRequestForMobile=====>" + e.getMessage(), e);
+	    }
+	    return response;
+	}
+
+	public ResponseDTO issueMaterialRequestForMobile(String jsonData) {
+		ResponseDTO response = new ResponseDTO();
+		try {
+			MaterialRequestDto jsonRequest = new ObjectMapper().readValue(jsonData, MaterialRequestDto.class);
+			if (jsonRequest != null) {
+				MaterialRequestMaster materialRequest = materialRequestManager.get(jsonRequest.getMaterialRequestId());
+				if (materialRequest != null) {
+					MaterialRequestHistory materialRequestHistory = materialRequestHistoryManager.get(jsonRequest.getMaterialRequestHistoryId());
+					if (materialRequestHistory != null) {
+						Double issuedQuantity = issueMaterialRequestMasterManager.getIssuedQuantityBasedonMaterialRequestHistoryId(materialRequestHistory.getId());
+						InventoryMaster inv = inventoryMasterManager.getInventoryListBasedonMaterialId(materialRequestHistory.getMaterialId().getId().toString());
+						if (issuedQuantity <= inv.getAvailableQuantity()) {
+							IssueMaterialRequestMaster issue = new IssueMaterialRequestMaster();
+							issue.setCreatedOn(DateUtils.getCurrentSystemTimestamp());
+							issue.setStatus(true);
+							issue.setIssuedDate(Timestamp.valueOf(jsonRequest.getIssuedDate()));
+							issue.setIssuerId(userMasterManager.get(jsonRequest.getIssuerId()));
+							issue.setIssuedQuantity(jsonRequest.getIssuedQuantity());
+							issue.setMaterialRequestMasterId(materialRequest);
+							issue.setIssuedWeight(jsonRequest.getIssuedWeight());
+							issue.setMaterialRequestHistoryId(materialRequestHistory);
+							issueMaterialRequestMasterManager.mergeSaveOrUpdate(issue);
+							if (inv != null) {
+								inv.setAvailableQuantity(inv.getAvailableQuantity() - issue.getIssuedQuantity());
+								inv.setAvailableWeight(inv.getAvailableWeight() - issue.getIssuedWeight());
+								inventoryMasterManager.mergeSaveOrUpdate(inv);
+
+								if ((jsonRequest.getIssuedQuantity() + issuedQuantity) == (materialRequestHistory.getRequiredQuantity())) {
+									issue.setIssueStatus("Completed");
+								} else if ((jsonRequest.getIssuedQuantity() + issuedQuantity) > (materialRequestHistory
+										.getRequiredQuantity())) {
+									response.setStatusCode(202);
+									response.setMessage("Please check Issued Quantity is More than Required Quantity.");
+									return response;
+								} else {
+									issue.setIssueStatus("Partial Completed");
+								}
+								materialRequest.setRequestStatus(issue.getIssueStatus());
+								materialRequest.setIssuedRemarks(jsonRequest.getIssuedRemarks());
+								materialRequest.setIssuedDate(DateUtils.getCurrentSystemTimestamp());
+								materialRequest.setModifiedOn(DateUtils.getCurrentSystemTimestamp());
+								materialRequestManager.mergeSaveOrUpdate(materialRequest);
+								issueMaterialRequestMasterManager.mergeSaveOrUpdate(issue);
+							}
+							response.setStatusCode(Integer.parseInt(appConfig.getProperty("SUCCESS_CODE")));
+							response.setMessage(appConfig.getProperty("SUCCESS"));
+						} else {
+							response.setStatusCode(202);
+							response.setMessage(materialRequestHistory.getMaterialId().getRmSize()+ "Available Quantity is " + inv.getAvailableQuantity());
+						}
+					} else {
+						response.setStatusCode(201);
+						response.setMessage("Invalid Material Request History Id");
+					}
+				} else {
+					response.setStatusCode(201);
+					response.setMessage("Invalid Material Request Id");
+				}
+			} else {
+				response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+				response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+				response.setResponse(null);
+			}
+		} catch (Exception e) {
+			LOG.info("issueMaterialRequest Exception" + e.getStackTrace(), e);
+			response.setStatusCode(Integer.parseInt(appConfig.getProperty("ERROR_CODE")));
+			response.setMessage(appConfig.getProperty("OOPS_MESSAGE"));
+			response.setResponse(null);
+		}
+		return response;
+	}
+
 }

@@ -126,4 +126,22 @@ public class MaterialRequestManager extends GenericManager<MaterialRequestMaster
 			return 0L;
 		}
 	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public List<MaterialRequestMaster> getMaterialRequestListForMobile(UserMaster user, Long projectId) {
+		List<MaterialRequestMaster> list = new ArrayList<MaterialRequestMaster>();
+		try {
+			StringBuilder sb = new StringBuilder();
+			if (projectId != null && projectId != 0) {
+				sb.append(" and projectId.id=" + projectId + "");
+			}
+			String sql = "from MaterialRequestMaster where status=true and requesterId.id=" + user.getId()+ " "+sb.toString()+" order by id desc";
+			list = find(sql);
+		} catch (Exception e) {
+			LOG.info("<=== Exception getMaterialRequestList ===>" + e.getStackTrace(), e); 
+			list = null;
+		}
+		return list;
+	}
 }

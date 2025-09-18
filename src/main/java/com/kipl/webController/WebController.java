@@ -389,5 +389,15 @@ public class WebController {
 		return response;
 	}
 	
-
+	@PostMapping("getMaterialRequestForMobile")
+	public ResponseDTO getMaterialRequestForMobile(HttpServletRequest request, @RequestBody String jsonData)throws JSONException {
+		LOG.info("getMaterialRequestForMobile");
+		ResponseDTO response = new ResponseDTO();
+		try {
+			response = webService.getMaterialRequestForMobile_v2(request, response, jsonData);
+		} catch (Exception e) {
+			LOG.info("" + e.getStackTrace(), e);
+		}
+		return response;
+	}
 }
